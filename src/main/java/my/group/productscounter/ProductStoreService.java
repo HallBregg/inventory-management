@@ -110,6 +110,10 @@ class ProductStoreService {
         }
     }
 
+    Product findById(Long id){
+        return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+    }
+
     List<Product> findAll(){
         return productRepository.findAll();
     }

@@ -26,6 +26,11 @@ class ProductController {
         return  productStoreService.findAll();
     }
 
+    @GetMapping("/{id}")
+    Product getProductById(@PathVariable Long id) {
+        return productStoreService.findById(id);
+    }
+
     @PutMapping("/{id}")
     void updateProduct(@PathVariable int id, @Valid @RequestBody UpdateProductCommand updateProductCommand) {
         productStoreService.update(updateProductCommand);
