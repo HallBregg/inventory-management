@@ -8,16 +8,71 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 
-class ProductCouldNotBeCreatedException extends RuntimeException {
-    ProductCouldNotBeCreatedException(Throwable cause) {
+//class ProductCouldNotBeCreatedException extends RuntimeException {
+//    ProductCouldNotBeCreatedException(Throwable cause) {
+//        super(cause);
+//    }
+//}
+
+
+abstract class ProductStoreServiceException extends RuntimeException {
+    private String code = "BASE_ERROR";
+
+    protected ProductStoreServiceException(String code) {
+        super();
+        this.code = code;
+    }
+
+    protected ProductStoreServiceException(String code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    protected ProductStoreServiceException(String code, Throwable cause) {
         super(cause);
+        this.code = code;
+    }
+
+    protected ProductStoreServiceException(String code, String message, Throwable cause) {
+        super(message, cause);
+        this.code = code;
+    }
+
+    String getCode() {
+        return code;
     }
 }
 
-class ProductNotFoundException extends RuntimeException {
-    ProductNotFoundException(){}
-    ProductNotFoundException(Throwable cause) {
-        super(cause);
+class ProductNotFoundException extends ProductStoreServiceException {
+    private static final String CODE = "PRODUCT_NOT_FOUND";
+
+    protected ProductNotFoundException(){
+        super(CODE);
+    }
+
+    protected ProductNotFoundException(String message) {
+        super(CODE, message);
+    }
+
+    protected ProductNotFoundException(String message, Throwable cause) {
+        super(CODE, message, cause);
+    }
+}
+
+
+class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
+    private static final String CODE = "PRODUCT_COULD_NOT_BE_CREATED";
+
+    protected ProductCouldNotBeCreatedException() {
+        super(CODE);
+    }
+
+    protected ProductCouldNotBeCreatedException(String message) {
+        super(CODE, message);
+    }
+
+    protected ProductCouldNotBeCreatedException(String message, Throwable cause) {
+        super(CODE, message, cause);
     }
 }
 
@@ -42,7 +97,7 @@ class ProductStoreService {
         try{
             productRepository.save(product);
         } catch (Exception e){
-            throw new ProductCouldNotBeCreatedException(e);
+            throw new ProductCouldNotBeCreatedException();
         }
     }
 
