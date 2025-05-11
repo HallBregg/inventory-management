@@ -8,6 +8,20 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 
+class ProductCouldNotBeCreatedException extends RuntimeException {
+    ProductCouldNotBeCreatedException(Throwable cause) {
+        super(cause);
+    }
+}
+
+class ProductNotFoundException extends RuntimeException {
+    ProductNotFoundException(){}
+    ProductNotFoundException(Throwable cause) {
+        super(cause);
+    }
+}
+
+
 @Service
 class ProductStoreService {
     private final ProductRepository productRepository;
@@ -25,7 +39,11 @@ class ProductStoreService {
             product.addProperty(new Property(property.name(), property.value()));
         });
 
-        productRepository.save(product);
+        try{
+            productRepository.save(product);
+        } catch (Exception e){
+            throw new ProductCouldNotBeCreatedException(e);
+        }
     }
 
     void delete(Long id){
@@ -36,7 +54,7 @@ class ProductStoreService {
     void update(UpdateProductCommand command){
         Product product = productRepository
                 .findById(command.id())
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(ProductNotFoundException::new);
 
         if(command.name() != null){
             product.setName(command.name());

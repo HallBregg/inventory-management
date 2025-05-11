@@ -7,7 +7,6 @@ import java.util.List;
 
 
 interface ProductRepository extends JpaRepository<Product, Long> {
-
     @Query("select distinct p.name from Product prod join prod.properties p")
     List<String> findAllUniquePropertyNames();
 }
