@@ -1,18 +1,10 @@
 package my.group.productscounter;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-
-//class ProductCouldNotBeCreatedException extends RuntimeException {
-//    ProductCouldNotBeCreatedException(Throwable cause) {
-//        super(cause);
-//    }
-//}
 
 
 abstract class ProductStoreServiceException extends RuntimeException {
@@ -59,7 +51,6 @@ class ProductNotFoundException extends ProductStoreServiceException {
     }
 }
 
-
 class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
     private static final String CODE = "PRODUCT_COULD_NOT_BE_CREATED";
 
@@ -76,7 +67,6 @@ class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
     }
 }
 
-
 @Service
 class ProductStoreService {
     private final ProductRepository productRepository;
@@ -85,7 +75,6 @@ class ProductStoreService {
     ProductStoreService(ProductRepository productRepository) {
         this.productRepository = productRepository;
     }
-
 
     void create(CreateProductCommand command){
         Product product = new Product();
@@ -101,9 +90,7 @@ class ProductStoreService {
         }
     }
 
-    void delete(Long id){
-        productRepository.deleteById(id);
-    }
+    void delete(Long id){ productRepository.deleteById(id); }
 
     @Transactional
     void update(UpdateProductCommand command){
