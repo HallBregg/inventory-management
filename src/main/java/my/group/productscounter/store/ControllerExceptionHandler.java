@@ -1,4 +1,4 @@
-package my.group.productscounter;
+package my.group.productscounter.store;
 
 
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package my.group.productscounter;
+package my.group.productscounter.store;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
