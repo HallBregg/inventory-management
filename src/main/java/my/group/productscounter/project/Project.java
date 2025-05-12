@@ -1,6 +1,7 @@
 package my.group.productscounter.project;
 
 import jakarta.persistence.*;
+import my.group.productscounter.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,11 +9,7 @@ import java.util.List;
 
 @Entity
 @Table(name="projects")
-class Project{
-
-    @GeneratedValue
-    @Id
-    private Long id;
+class Project extends BaseEntity {
 
     @Column(nullable = false)
     private String name;

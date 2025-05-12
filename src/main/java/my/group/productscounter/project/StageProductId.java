@@ -3,20 +3,22 @@ package my.group.productscounter.project;
 
 import jakarta.persistence.Embeddable;
 
+import java.util.UUID;
+
 
 @Embeddable
 class StageProductId {
-    private Long stageId;
+    private UUID stageId;
     private Position position;
 
     protected StageProductId() {}  // JPA requirement
 
-    public StageProductId(Long stageId, Position position) {
+    public StageProductId(UUID stageId, Position position) {
         this.stageId = stageId;
         this.position = position;
     }
 
-    Long getStageId() { return stageId; }
+    UUID getStageId() { return stageId; }
     Position getPosition() { return position; }
 
     @Override
