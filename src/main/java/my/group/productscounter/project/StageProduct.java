@@ -24,4 +24,8 @@ class StageProduct {
     private int quantity;
 
     protected StageProduct() {}  // JPA requirement
+
+    Long getProductId() { return productId; }
+    Integer getQuantity() { return quantity; }
+    Position getPosition() { return id.getPosition(); }
 }

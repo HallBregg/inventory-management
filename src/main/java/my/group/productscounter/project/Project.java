@@ -22,4 +22,11 @@ class Project extends BaseEntity {
     private List<Stage> stages = new ArrayList<>();
 
     protected Project(){}  // JPA requirement
+
+    Project(String name){
+        this.name = name;
+    }
+
+    List<Stage> getStages() { return stages; }
+    String getName() { return name; }
 }

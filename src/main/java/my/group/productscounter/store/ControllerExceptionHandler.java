@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 record ErrorResponse(Integer code, String message) {}
 
-@ControllerAdvice
-class ControllerExceptionHandler {
+@ControllerAdvice(assignableTypes = ProductController.class)
+class ProductControllerExceptionHandler {
 
     @ExceptionHandler(ProductCouldNotBeCreatedException.class)
     ResponseEntity<Object> handleProductCouldNotBeCreatedException(ProductCouldNotBeCreatedException ex) {

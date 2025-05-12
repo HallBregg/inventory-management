@@ -26,4 +26,7 @@ class Stage extends BaseEntity {
     private List<StageProduct> products = new ArrayList<>();
 
     protected Stage() {}  // JPA requirement
+
+    String getName() { return name; }
+    List<StageProduct> getProducts() { return products; }
 }
