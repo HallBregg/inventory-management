@@ -35,18 +35,6 @@ abstract class ProjectServiceException extends RuntimeException {
 }
 
 
-class CouldNotCreateProjectException extends ProjectServiceException {
-    private static final String CODE = "COULD_NOT_CREATE_PROJECT";
-
-    CouldNotCreateProjectException() {
-        super(CODE);
-    }
-
-    CouldNotCreateProjectException(Throwable cause) {
-        super(CODE, cause);
-    }
-}
-
 class ProjectNotFoundException extends ProjectServiceException {
     private static final String CODE = "PROJECT_NOT_FOUND";
     ProjectNotFoundException() {
@@ -66,6 +54,20 @@ class ProjectService {
     @Transactional
     Project createProject(CreateProjectCommand command) {
         return projectRepository.save(new Project(command.name()));
+    }
+
+    @Transactional
+    Project updateProject(UpdateProjectCommand command){
+        Project project = projectRepository
+                .findById(command.projectId())
+                .orElseThrow(ProjectNotFoundException::new);
+        project.setName(command.name());
+        return projectRepository.save(project);
+    }
+
+    @Transactional
+    void deleteProject(UUID projectId) {
+        projectRepository.deleteById(projectId);
     }
 
     List<Project> findAll() {

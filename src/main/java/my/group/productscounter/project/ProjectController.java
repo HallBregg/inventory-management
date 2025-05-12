@@ -3,6 +3,7 @@ package my.group.productscounter.project;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,35 +37,24 @@ class ProjectController {
                 .body(new ProjectSummaryResponse(project.getId(), project.getName()));
     }
 
+    @PutMapping("/{id}")
+    ProjectSummaryResponse updateProject(@PathVariable UUID id, @Valid @RequestBody UpdateProjectCommand updateProjectCommand) {
+        return ProjectSummaryResponse.of(projectService.updateProject(updateProjectCommand));
+    }
+
     @GetMapping("/{id}")
     ProjectResponse fetchProject(@PathVariable UUID id) {
-        Project project = projectService.findById(id);
+        return ProjectResponse.of(projectService.findById(id));
+    }
 
-        return new ProjectResponse(
-                project.getId(),
-                project.getName(),
-                project
-                        .getStages()
-                        .stream()
-                        .map(stage -> new StageResponse(
-                                stage.getId(),
-                                stage.getName(),
-                                stage.getProducts()
-                                        .stream()
-                                        .map(stageProduct -> new StageProductResponse(
-                                                stageProduct.getProductId(),
-                                                stageProduct.getPosition().getValue(),
-                                                stageProduct.getQuantity())
-                                        ).toList())
-                        ).toList());
+    @DeleteMapping("/{id}")
+    ResponseEntity<?> deleteProject(@PathVariable UUID id) {
+        projectService.deleteProject(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     List<ProjectSummaryResponse> fetchProjects() {
-        return projectService
-                .findAll()
-                .stream()
-                .map(project -> new ProjectSummaryResponse(
-                        project.getId(), project.getName())).toList();
+        return ProjectSummaryResponse.of(projectService.findAll());
     }
 }

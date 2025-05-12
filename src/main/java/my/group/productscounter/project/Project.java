@@ -29,4 +29,5 @@ class Project extends BaseEntity {
 
     List<Stage> getStages() { return stages; }
     String getName() { return name; }
+    void setName(String name) { this.name = name; }
 }
