@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import my.group.productscounter.BaseEntity;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -38,5 +40,25 @@ class Stage extends BaseEntity {
 
     List<StageProduct> getProducts() {
         return products;
+    }
+
+    void replaceProducts(List<StageProductSpec> products) {
+        Set<Position> seen = new HashSet<>();
+        products.forEach(product -> {
+            Position position = new Position(product.position());
+            if (!seen.add(position)) throw new IllegalStateException("Duplicate position: " + position);
+        });
+
+        this.products.clear();
+        for (StageProductSpec product : products) {
+            this.products.add(
+                    new StageProduct(
+                            this,
+                            product.productId(),
+                            product.quantity(),
+                            new Position(product.position())
+                    )
+            );
+        }
     }
 }

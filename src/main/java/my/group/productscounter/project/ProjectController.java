@@ -51,15 +51,4 @@ class ProjectController {
         projectService.deleteProject(id);
         return ResponseEntity.noContent().build();
     }
-
-    @GetMapping
-    List<ProjectSummaryResponse> fetchProjects() {
-        return ProjectSummaryResponse.of(projectService.listAllProjects());
-    }
-
-    @PostMapping("/{projectId}/stages")
-    StageSummaryResponse createStage(@PathVariable UUID projectId, @Valid @RequestBody CreateStageCommand createStageCommand) {
-        return StageSummaryResponse.of(projectService.createStage(createStageCommand));
-    }
-
 }

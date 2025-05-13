@@ -1,6 +1,7 @@
 package my.group.productscounter.project;
 
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -43,13 +44,33 @@ class ProjectNotFoundException extends ProjectServiceException {
     }
 }
 
+class ProjectStageUpdateException extends ProjectServiceException{
+    private static final String CODE = "PROJECT_STAGE_UPDATE_ERROR";
+
+    ProjectStageUpdateException(){
+        super(CODE);
+    }
+}
+
+
+class ProductNotFound extends ProjectServiceException{
+    private static final String CODE = "PRODUCT_NOT_FOUND";
+
+    ProductNotFound(Long productId){
+        super(CODE, String.format("Product with id %s does not exist.", productId));
+    }
+}
+
 
 @Service
 class ProjectService {
     private final ProjectRepository projectRepository;
+    private final ProductFinder productFinder;
 
-    ProjectService(ProjectRepository projectRepository) {
+    @Autowired
+    ProjectService(ProjectRepository projectRepository, ProductFinder productFinder) {
         this.projectRepository = projectRepository;
+        this.productFinder = productFinder;
     }
 
     @Transactional
@@ -83,10 +104,24 @@ class ProjectService {
         return project.addStage(command.name());
     }
 
+    @Transactional
     Stage updateStage(UpdateStageCommand command){
-        // Validate if command.product.position and command.product.quantity are "correct" (unique position larger than 0 and quantity larger than 0).
-        return null;
-    };
+        Project project = getProject(command.projectId());
+        final Stage stage;
+
+        try{
+            stage = project.getStage(command.stageId());
+        } catch (StageNotFound e){
+            throw new ProjectStageUpdateException();
+        }
+
+        // Not performant! Maybe some cache on impl. etc.
+        command.products().forEach(product -> {
+            if (!productFinder.existsById(product.productId())) throw new ProductNotFound(product.productId());
+        });
+        stage.replaceProducts(command.products());
+        return stage;
+    }
 
     @Transactional
     void deleteStage(DeleteStageCommand command){

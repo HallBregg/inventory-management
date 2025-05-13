@@ -68,7 +68,7 @@ class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
 }
 
 @Service
-class ProductStoreService {
+public class ProductStoreService {
     private final ProductRepository productRepository;
 
     @Autowired
@@ -120,5 +120,9 @@ class ProductStoreService {
 
     List<String> listAllPropertyNames(){
         return productRepository.findAllUniquePropertyNames();
+    }
+
+    public boolean exists(Long id){
+        return productRepository.existsById(id);
     }
 }

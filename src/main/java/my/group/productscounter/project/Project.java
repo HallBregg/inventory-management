@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.UUID;
 
 
+class StageNotFound extends RuntimeException {
+};
+
+
 @Entity
 @Table(name = "projects")
 class Project extends BaseEntity {
@@ -41,13 +45,21 @@ class Project extends BaseEntity {
         return stages;
     }
 
+    Stage getStage(UUID stageId) {
+        return stages
+                .stream()
+                .filter(stage -> stage.getId() == stageId)
+                .findFirst()
+                .orElseThrow(StageNotFound::new);
+    }
+
     Stage addStage(String stageName) {
         Stage stage = new Stage(stageName, this);
         stages.add(stage);
         return stage;
     }
 
-    void deleteStage(UUID stageId){
+    void deleteStage(UUID stageId) {
         stages.removeIf(stage -> stage.getId() == stageId);
     }
 }
