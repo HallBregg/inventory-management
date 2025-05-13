@@ -60,5 +60,6 @@ class ProjectController {
     @PostMapping("/{projectId}/stages")
     StageSummaryResponse createStage(@PathVariable UUID projectId, @Valid @RequestBody CreateStageCommand createStageCommand) {
         return StageSummaryResponse.of(projectService.createStage(createStageCommand));
-    };
+    }
+
 }

@@ -8,30 +8,37 @@ import java.util.List;
 
 
 @Entity
-@Table(name="projects")
+@Table(name = "projects")
 class Project extends BaseEntity {
 
     @Column(nullable = false)
     private String name;
 
     @OneToMany(
-        mappedBy="project",
-        cascade=CascadeType.ALL,
-        orphanRemoval=true
+            mappedBy = "project",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
     )
-    private List<Stage> stages = new ArrayList<>();
+    private final List<Stage> stages = new ArrayList<>();
 
-    protected Project(){}  // JPA requirement
+    protected Project() {
+    }  // JPA requirement
 
-    Project(String name){
+    Project(String name) {
         this.name = name;
     }
 
-    List<Stage> getStages() { return stages; }
+    String getName() {
+        return name;
+    }
 
-    String getName() { return name; }
+    void setName(String name) {
+        this.name = name;
+    }
 
-    void setName(String name) { this.name = name; }
+    List<Stage> getStages() {
+        return stages;
+    }
 
     Stage addStage(String name) {
         Stage stage = new Stage(name, this);

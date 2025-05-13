@@ -37,6 +37,7 @@ abstract class ProjectServiceException extends RuntimeException {
 
 class ProjectNotFoundException extends ProjectServiceException {
     private static final String CODE = "PROJECT_NOT_FOUND";
+
     ProjectNotFoundException() {
         super(CODE);
     }
@@ -57,7 +58,7 @@ class ProjectService {
     }
 
     @Transactional
-    Project updateProject(UpdateProjectCommand command){
+    Project updateProject(UpdateProjectCommand command) {
         Project project = findById(command.projectId());
         project.setName(command.name());
         return projectRepository.save(project);
@@ -79,7 +80,7 @@ class ProjectService {
     }
 
     @Transactional
-    Stage createStage(CreateStageCommand command){
+    Stage createStage(CreateStageCommand command) {
         Project project = findById(command.projectId());
         return project.addStage(command.name());
     }

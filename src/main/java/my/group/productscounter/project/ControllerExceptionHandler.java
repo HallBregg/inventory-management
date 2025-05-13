@@ -7,7 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 
-record ErrorResponse(String code, String message) {}
+record ErrorResponse(String code, String message) {
+}
 
 @ControllerAdvice(assignableTypes = ProjectController.class)
 class ProjectControllerExceptionHandler {

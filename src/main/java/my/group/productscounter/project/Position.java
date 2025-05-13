@@ -9,10 +9,13 @@ import java.util.Objects;
 @Embeddable
 class Position {
 
-    @Column(name="position", nullable = false)
+    @Column(name = "position", nullable = false)
     private int value;
 
-    protected Position() {};   // JPA requirement
+    protected Position() {
+    }
+
+    // JPA requirement
 
     Position(int value) {
         if (value < 0) {
@@ -26,7 +29,7 @@ class Position {
     }
 
     @Override
-    public boolean equals(Object o){
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Position position)) return false;
         return value == position.value;

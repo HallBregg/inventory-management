@@ -11,15 +11,21 @@ class StageProductId {
     private UUID stageId;
     private Position position;
 
-    protected StageProductId() {}  // JPA requirement
+    protected StageProductId() {
+    }  // JPA requirement
 
     public StageProductId(UUID stageId, Position position) {
         this.stageId = stageId;
         this.position = position;
     }
 
-    UUID getStageId() { return stageId; }
-    Position getPosition() { return position; }
+    UUID getStageId() {
+        return stageId;
+    }
+
+    Position getPosition() {
+        return position;
+    }
 
     @Override
     public boolean equals(Object o) {

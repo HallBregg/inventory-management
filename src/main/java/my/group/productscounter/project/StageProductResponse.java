@@ -7,4 +7,4 @@ record StageProductResponse(Long productId, Integer position, Integer quantity) 
                 stageProduct.getPosition().getValue(),
                 stageProduct.getQuantity());
     }
-};
+}

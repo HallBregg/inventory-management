@@ -7,4 +7,5 @@ import java.util.UUID;
 
 
 @Validated
-record UpdateProjectCommand(@NotBlank UUID projectId, @NotBlank String name){};
+record UpdateProjectCommand(@NotBlank UUID projectId, @NotBlank String name) {
+}

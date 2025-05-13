@@ -6,4 +6,4 @@ record StageSummaryResponse(UUID id, String name) {
     static StageSummaryResponse of(Stage stage) {
         return new StageSummaryResponse(stage.getId(), stage.getName());
     }
-};
+}

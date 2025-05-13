@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(
-    uniqueConstraints=@UniqueConstraint(columnNames={"stage_id","position"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"stage_id", "position"})
 )
 class StageProduct {
 
@@ -14,18 +14,27 @@ class StageProduct {
     private StageProductId id;
 
     @MapsId("stageId")
-    @ManyToOne(optional=false)
+    @ManyToOne(optional = false)
     private Stage stage;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private Long productId;
 
-    @Column(nullable=false)
+    @Column(nullable = false)
     private int quantity;
 
-    protected StageProduct() {}  // JPA requirement
+    protected StageProduct() {
+    }  // JPA requirement
 
-    Long getProductId() { return productId; }
-    Integer getQuantity() { return quantity; }
-    Position getPosition() { return id.getPosition(); }
+    Long getProductId() {
+        return productId;
+    }
+
+    Integer getQuantity() {
+        return quantity;
+    }
+
+    Position getPosition() {
+        return id.getPosition();
+    }
 }
