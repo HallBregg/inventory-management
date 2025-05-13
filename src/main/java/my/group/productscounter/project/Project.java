@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-class StageNotFound extends RuntimeException {
-};
+class StageNotFound extends RuntimeException {};
 
 
 @Entity
@@ -48,7 +47,7 @@ class Project extends BaseEntity {
     Stage getStage(UUID stageId) {
         return stages
                 .stream()
-                .filter(stage -> stage.getId() == stageId)
+                .filter(stage -> stage.getId().equals(stageId))
                 .findFirst()
                 .orElseThrow(StageNotFound::new);
     }

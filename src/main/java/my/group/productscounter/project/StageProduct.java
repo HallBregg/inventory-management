@@ -44,4 +44,8 @@ class StageProduct {
     Position getPosition() {
         return id.getPosition();
     }
+
+    void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 }

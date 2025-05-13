@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record DeleteStageCommand(@NotNull UUID projectId, @NotNull UUID stageId) {
+record DeleteStageCommand(@NotNull UUID projectId, @NotNull UUID stageId) {
 };

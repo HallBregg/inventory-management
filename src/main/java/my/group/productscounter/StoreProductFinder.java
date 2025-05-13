@@ -2,10 +2,12 @@ package my.group.productscounter;
 
 import my.group.productscounter.project.ProductFinder;
 import my.group.productscounter.store.ProductStoreService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 
 @Component
+@ConditionalOnProperty(name="product.finder.fake", havingValue = "false", matchIfMissing = true)
 public class StoreProductFinder implements ProductFinder {
     private final ProductStoreService productStoreService;
 

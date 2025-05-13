@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "product.finder.fake",
+      "type": "java.lang.String",
+      "description": "Description for product.finder.fake."
+  }
+] }

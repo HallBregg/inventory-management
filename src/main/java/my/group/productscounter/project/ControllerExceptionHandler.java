@@ -3,6 +3,7 @@ package my.group.productscounter.project;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -16,5 +17,10 @@ class ProjectControllerExceptionHandler {
     @ExceptionHandler(ProjectNotFoundException.class)
     ResponseEntity<Object> handleProjectNotFoundException(ProjectNotFoundException ex) {
         return new ResponseEntity<>(new ErrorResponse(ex.getCode(), "Product Not Found"), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    MethodArgumentNotValidException handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        return ex;
     }
 }

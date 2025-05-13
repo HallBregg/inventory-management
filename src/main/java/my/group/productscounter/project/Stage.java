@@ -4,10 +4,8 @@ package my.group.productscounter.project;
 import jakarta.persistence.*;
 import my.group.productscounter.BaseEntity;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Entity
@@ -42,23 +40,27 @@ class Stage extends BaseEntity {
         return products;
     }
 
-    void replaceProducts(List<StageProductSpec> products) {
-        Set<Position> seen = new HashSet<>();
-        products.forEach(product -> {
-            Position position = new Position(product.position());
-            if (!seen.add(position)) throw new IllegalStateException("Duplicate position: " + position);
-        });
 
-        this.products.clear();
-        for (StageProductSpec product : products) {
-            this.products.add(
-                    new StageProduct(
-                            this,
-                            product.productId(),
-                            product.quantity(),
-                            new Position(product.position())
-                    )
-            );
+    void replaceProducts(List<StageProductSpec> specs) {
+        Map<Position, StageProduct> map = products
+                .stream()
+                .collect(Collectors.toMap(
+                        StageProduct::getPosition,
+                        stageProduct -> stageProduct));
+
+        List<StageProduct> ordered = new ArrayList<>(specs.size());
+        for (StageProductSpec spec : specs){
+            Position position = new Position(spec.position());
+            StageProduct product = map.remove(position);
+            if(product != null) {
+                product.setQuantity(spec.quantity());
+            } else {
+                product = new StageProduct(this, spec.productId(), spec.quantity(), position);
+            }
+            ordered.add(product);
         }
+        map.values().forEach(products::remove);
+        products.clear();
+        products.addAll(ordered);
     }
 }

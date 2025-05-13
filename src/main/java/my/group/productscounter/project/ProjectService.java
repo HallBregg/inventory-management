@@ -50,6 +50,10 @@ class ProjectStageUpdateException extends ProjectServiceException{
     ProjectStageUpdateException(){
         super(CODE);
     }
+
+    ProjectStageUpdateException(Throwable cause){
+        super(CODE, cause);
+    }
 }
 
 
@@ -112,7 +116,7 @@ class ProjectService {
         try{
             stage = project.getStage(command.stageId());
         } catch (StageNotFound e){
-            throw new ProjectStageUpdateException();
+            throw new ProjectStageUpdateException(e);
         }
 
         // Not performant! Maybe some cache on impl. etc.
@@ -128,17 +132,4 @@ class ProjectService {
         Project project = getProject(command.projectId());
         project.deleteStage(command.stageId());
     };
-
-    @Deprecated
-    List<Project> findAll() {
-        return projectRepository.findAll();
-    }
-
-    @Deprecated
-    Project findById(UUID id) {
-        return projectRepository
-                .findById(id)
-                .orElseThrow(ProjectNotFoundException::new);
-    }
-
 }
