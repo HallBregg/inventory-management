@@ -43,7 +43,7 @@ class ProjectController {
 
     @GetMapping("/{id}")
     ProjectResponse fetchProject(@PathVariable UUID id) {
-        return ProjectResponse.of(projectService.findById(id));
+        return ProjectResponse.of(projectService.getProject(id));
     }
 
     @DeleteMapping("/{id}")
@@ -54,7 +54,7 @@ class ProjectController {
 
     @GetMapping
     List<ProjectSummaryResponse> fetchProjects() {
-        return ProjectSummaryResponse.of(projectService.findAll());
+        return ProjectSummaryResponse.of(projectService.listAllProjects());
     }
 
     @PostMapping("/{projectId}/stages")

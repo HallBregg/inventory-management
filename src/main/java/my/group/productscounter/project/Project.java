@@ -5,6 +5,7 @@ import my.group.productscounter.BaseEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 @Entity
@@ -40,9 +41,13 @@ class Project extends BaseEntity {
         return stages;
     }
 
-    Stage addStage(String name) {
-        Stage stage = new Stage(name, this);
+    Stage addStage(String stageName) {
+        Stage stage = new Stage(stageName, this);
         stages.add(stage);
         return stage;
+    }
+
+    void deleteStage(UUID stageId){
+        stages.removeIf(stage -> stage.getId() == stageId);
     }
 }

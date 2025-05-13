@@ -57,31 +57,53 @@ class ProjectService {
         return projectRepository.save(new Project(command.name()));
     }
 
+    List<Project> listAllProjects(){
+        return projectRepository.findAll();
+    }
+
+    Project getProject(UUID projectId){
+        return projectRepository.findById(projectId).orElseThrow(ProjectNotFoundException::new);
+    }
+
     @Transactional
-    Project updateProject(UpdateProjectCommand command) {
-        Project project = findById(command.projectId());
+    Project updateProject(UpdateProjectCommand command){
+        Project project = getProject(command.projectId());
         project.setName(command.name());
         return projectRepository.save(project);
     }
 
     @Transactional
-    void deleteProject(UUID projectId) {
+    void deleteProject(UUID projectId){
         projectRepository.deleteById(projectId);
     }
 
+    @Transactional
+    Stage createStage(CreateStageCommand command){
+        Project project = getProject(command.projectId());
+        return project.addStage(command.name());
+    }
+
+    Stage updateStage(UpdateStageCommand command){
+        // Validate if command.product.position and command.product.quantity are "correct" (unique position larger than 0 and quantity larger than 0).
+        return null;
+    };
+
+    @Transactional
+    void deleteStage(DeleteStageCommand command){
+        Project project = getProject(command.projectId());
+        project.deleteStage(command.stageId());
+    };
+
+    @Deprecated
     List<Project> findAll() {
         return projectRepository.findAll();
     }
 
+    @Deprecated
     Project findById(UUID id) {
         return projectRepository
                 .findById(id)
                 .orElseThrow(ProjectNotFoundException::new);
     }
 
-    @Transactional
-    Stage createStage(CreateStageCommand command) {
-        Project project = findById(command.projectId());
-        return project.addStage(command.name());
-    }
 }
