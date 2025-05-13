@@ -27,6 +27,11 @@ class Stage extends BaseEntity {
 
     protected Stage() {}  // JPA requirement
 
+    Stage(String name, Project project) {
+        this.name = name;
+        this.project = project;
+    }
+
     String getName() { return name; }
     List<StageProduct> getProducts() { return products; }
 }

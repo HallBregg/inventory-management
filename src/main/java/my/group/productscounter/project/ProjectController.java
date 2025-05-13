@@ -3,7 +3,6 @@ package my.group.productscounter.project;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -57,4 +56,9 @@ class ProjectController {
     List<ProjectSummaryResponse> fetchProjects() {
         return ProjectSummaryResponse.of(projectService.findAll());
     }
+
+    @PostMapping("/{projectId}/stages")
+    StageSummaryResponse createStage(@PathVariable UUID projectId, @Valid @RequestBody CreateStageCommand createStageCommand) {
+        return StageSummaryResponse.of(projectService.createStage(createStageCommand));
+    };
 }

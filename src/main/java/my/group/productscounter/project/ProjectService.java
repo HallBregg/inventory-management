@@ -58,9 +58,7 @@ class ProjectService {
 
     @Transactional
     Project updateProject(UpdateProjectCommand command){
-        Project project = projectRepository
-                .findById(command.projectId())
-                .orElseThrow(ProjectNotFoundException::new);
+        Project project = findById(command.projectId());
         project.setName(command.name());
         return projectRepository.save(project);
     }
@@ -78,5 +76,11 @@ class ProjectService {
         return projectRepository
                 .findById(id)
                 .orElseThrow(ProjectNotFoundException::new);
+    }
+
+    @Transactional
+    Stage createStage(CreateStageCommand command){
+        Project project = findById(command.projectId());
+        return project.addStage(command.name());
     }
 }
