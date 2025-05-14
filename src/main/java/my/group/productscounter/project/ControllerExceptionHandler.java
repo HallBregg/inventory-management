@@ -16,7 +16,7 @@ class ProjectControllerExceptionHandler {
 
     @ExceptionHandler(ProjectNotFoundException.class)
     ResponseEntity<Object> handleProjectNotFoundException(ProjectNotFoundException ex) {
-        return new ResponseEntity<>(new ErrorResponse(ex.getCode(), "Product Not Found"), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(new ErrorResponse(ex.getCode(), "Project Not Found"), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

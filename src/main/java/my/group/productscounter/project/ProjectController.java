@@ -18,10 +18,12 @@ import java.util.UUID;
 @Validated
 class ProjectController {
     private final ProjectService projectService;
+    private final ProjectQuery projectQuery;
 
     @Autowired
-    ProjectController(ProjectService projectService) {
+    ProjectController(ProjectService projectService, ProjectQuery projectQuery) {
         this.projectService = projectService;
+        this.projectQuery = projectQuery;
     }
 
     @PostMapping
@@ -74,4 +76,9 @@ class ProjectController {
         projectService.deleteStage(new DeleteStageCommand(projectId, stageId));
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/full/{id}")
+    ProjectView getProjectView(@PathVariable UUID id){
+        return projectQuery.getFullProject(id);
+    };
 }

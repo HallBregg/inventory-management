@@ -6,6 +6,7 @@ import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.UUID;
 
 
 interface ProjectQueryRepository extends Repository<Project, Long> {
@@ -22,11 +23,11 @@ interface ProjectQueryRepository extends Repository<Project, Long> {
                      prop.name              AS productPropertyName,
                      prop.value             AS productPropertyValue
               FROM Project p
-              JOIN p.stages s
-              JOIN s.products sp
-              JOIN Product prod        ON prod.id = sp.productId
-              JOIN prod.properties prop
+              LEFT JOIN p.stages s
+              LEFT JOIN s.products sp
+              LEFT JOIN Product prod        ON prod.id = sp.productId
+              LEFT JOIN prod.properties prop
               WHERE p.id = :projectId
             """)
-    List<FlatProjectView> getFlatProjectViews(@Param("projectId") Long projectId);
+    List<FlatProjectView> getFlatProjectViews(@Param("projectId") UUID projectId);
 }
