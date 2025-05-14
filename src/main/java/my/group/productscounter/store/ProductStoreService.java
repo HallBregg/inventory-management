@@ -38,7 +38,7 @@ abstract class ProductStoreServiceException extends RuntimeException {
 class ProductNotFoundException extends ProductStoreServiceException {
     private static final String CODE = "PRODUCT_NOT_FOUND";
 
-    protected ProductNotFoundException(){
+    protected ProductNotFoundException() {
         super(CODE);
     }
 
@@ -76,33 +76,35 @@ public class ProductStoreService {
         this.productRepository = productRepository;
     }
 
-    void create(CreateProductCommand command){
+    void create(CreateProductCommand command) {
         Product product = new Product();
         product.setName(command.name());
         command.properties().forEach(property -> {
             product.addProperty(new Property(property.name(), property.value()));
         });
 
-        try{
+        try {
             productRepository.save(product);
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new ProductCouldNotBeCreatedException();
         }
     }
 
-    void delete(Long id){ productRepository.deleteById(id); }
+    void delete(Long id) {
+        productRepository.deleteById(id);
+    }
 
     @Transactional
-    void update(UpdateProductCommand command){
+    void update(UpdateProductCommand command) {
         Product product = productRepository
                 .findById(command.id())
                 .orElseThrow(ProductNotFoundException::new);
 
-        if(command.name() != null){
+        if (command.name() != null) {
             product.setName(command.name());
         }
 
-        if(command.properties() != null){
+        if (command.properties() != null) {
             product.getProperties().clear();
             command.properties().forEach(property -> {
                 product.addProperty(new Property(property.name(), property.value()));
@@ -110,19 +112,19 @@ public class ProductStoreService {
         }
     }
 
-    Product findById(Long id){
+    Product findById(Long id) {
         return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
     }
 
-    List<Product> findAll(){
+    List<Product> findAll() {
         return productRepository.findAll();
     }
 
-    List<String> listAllPropertyNames(){
+    List<String> listAllPropertyNames() {
         return productRepository.findAllUniquePropertyNames();
     }
 
-    public boolean exists(Long id){
+    public boolean exists(Long id) {
         return productRepository.existsById(id);
     }
 }

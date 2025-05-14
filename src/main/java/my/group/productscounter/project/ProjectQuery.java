@@ -7,7 +7,7 @@ class ProjectQuery {
         this.projectQueryRepository = projectQueryRepository;
     }
 
-    FullProjectView getFullProject() {
+    ProjectView getFullProject() {
         return null;
     }
 }

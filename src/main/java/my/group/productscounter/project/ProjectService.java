@@ -44,23 +44,23 @@ class ProjectNotFoundException extends ProjectServiceException {
     }
 }
 
-class ProjectStageUpdateException extends ProjectServiceException{
+class ProjectStageUpdateException extends ProjectServiceException {
     private static final String CODE = "PROJECT_STAGE_UPDATE_ERROR";
 
-    ProjectStageUpdateException(){
+    ProjectStageUpdateException() {
         super(CODE);
     }
 
-    ProjectStageUpdateException(Throwable cause){
+    ProjectStageUpdateException(Throwable cause) {
         super(CODE, cause);
     }
 }
 
 
-class ProductNotFound extends ProjectServiceException{
+class ProductNotFound extends ProjectServiceException {
     private static final String CODE = "PRODUCT_NOT_FOUND";
 
-    ProductNotFound(Long productId){
+    ProductNotFound(Long productId) {
         super(CODE, String.format("Product with id %s does not exist.", productId));
     }
 }
@@ -82,40 +82,40 @@ class ProjectService {
         return projectRepository.save(new Project(command.name()));
     }
 
-    List<Project> listAllProjects(){
+    List<Project> listAllProjects() {
         return projectRepository.findAll();
     }
 
-    Project getProject(UUID projectId){
+    Project getProject(UUID projectId) {
         return projectRepository.findById(projectId).orElseThrow(ProjectNotFoundException::new);
     }
 
     @Transactional
-    Project updateProject(UpdateProjectCommand command){
+    Project updateProject(UpdateProjectCommand command) {
         Project project = getProject(command.projectId());
         project.setName(command.name());
         return projectRepository.save(project);
     }
 
     @Transactional
-    void deleteProject(UUID projectId){
+    void deleteProject(UUID projectId) {
         projectRepository.deleteById(projectId);
     }
 
     @Transactional
-    Stage createStage(CreateStageCommand command){
+    Stage createStage(CreateStageCommand command) {
         Project project = getProject(command.projectId());
         return project.addStage(command.name());
     }
 
     @Transactional
-    Stage updateStage(UpdateStageCommand command){
+    Stage updateStage(UpdateStageCommand command) {
         Project project = getProject(command.projectId());
         final Stage stage;
 
-        try{
+        try {
             stage = project.getStage(command.stageId());
-        } catch (StageNotFound e){
+        } catch (StageNotFound e) {
             throw new ProjectStageUpdateException(e);
         }
 
@@ -128,8 +128,9 @@ class ProjectService {
     }
 
     @Transactional
-    void deleteStage(DeleteStageCommand command){
+    void deleteStage(DeleteStageCommand command) {
         Project project = getProject(command.projectId());
         project.deleteStage(command.stageId());
-    };
+    }
+
 }

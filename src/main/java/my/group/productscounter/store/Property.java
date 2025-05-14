@@ -14,7 +14,8 @@ class Property {
     @Column(name = "property_value")
     private String value;
 
-    protected Property() {}
+    protected Property() {
+    }
 
     Property(String name, String value) {
         this.name = name;
@@ -33,6 +34,11 @@ class Property {
         return Objects.hash(name, value);
     }
 
-    public String getName()  { return name; }
-    public String getValue() { return value; }
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
+    }
 }

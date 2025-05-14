@@ -26,7 +26,7 @@ class StageProduct {
     protected StageProduct() {
     }  // JPA requirement
 
-    StageProduct(Stage stage, Long productId, int quantity, Position position){
+    StageProduct(Stage stage, Long productId, int quantity, Position position) {
         this.id = new StageProductId(stage.getId(), position);
         this.stage = stage;
         this.productId = productId;

@@ -14,5 +14,7 @@ public abstract class BaseEntity {
     @GeneratedValue
     private UUID id;
 
-    public UUID getId() { return id; }
+    public UUID getId() {
+        return id;
+    }
 }

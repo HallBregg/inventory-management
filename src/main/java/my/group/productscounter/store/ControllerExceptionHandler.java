@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-record ErrorResponse(Integer code, String message) {}
+record ErrorResponse(Integer code, String message) {
+}
 
 @ControllerAdvice(assignableTypes = ProductController.class)
 class ProductControllerExceptionHandler {

@@ -15,9 +15,10 @@ class Product {
     private String name;
 
     @ElementCollection
-    private Set<Property> properties = new HashSet<>();
+    private final Set<Property> properties = new HashSet<>();
 
-    protected Product() {}
+    protected Product() {
+    }
 
     void addProperty(Property property) {
         this.properties.add(property);
@@ -27,11 +28,19 @@ class Product {
         this.properties.add(new Property(name, value));
     }
 
-    void setName(String name) { this.name = name; }
+    void setName(String name) {
+        this.name = name;
+    }
 
-    public String getName() { return this.name; }
+    public String getName() {
+        return this.name;
+    }
 
-    public Long getId() { return id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Set<Property> getProperties() { return this.properties; }
+    public Set<Property> getProperties() {
+        return this.properties;
+    }
 }

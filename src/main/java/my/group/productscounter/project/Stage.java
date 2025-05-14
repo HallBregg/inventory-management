@@ -4,7 +4,9 @@ package my.group.productscounter.project;
 import jakarta.persistence.*;
 import my.group.productscounter.BaseEntity;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -49,10 +51,10 @@ class Stage extends BaseEntity {
                         stageProduct -> stageProduct));
 
         List<StageProduct> ordered = new ArrayList<>(specs.size());
-        for (StageProductSpec spec : specs){
+        for (StageProductSpec spec : specs) {
             Position position = new Position(spec.position());
             StageProduct product = map.remove(position);
-            if(product != null) {
+            if (product != null) {
                 product.setQuantity(spec.quantity());
             } else {
                 product = new StageProduct(this, spec.productId(), spec.quantity(), position);

@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@ConditionalOnProperty(name="product.finder.fake", havingValue = "false", matchIfMissing = true)
+@ConditionalOnProperty(name = "product.finder.fake", havingValue = "false", matchIfMissing = true)
 public class StoreProductFinder implements ProductFinder {
     private final ProductStoreService productStoreService;
 
-    StoreProductFinder(ProductStoreService productStoreService){
+    StoreProductFinder(ProductStoreService productStoreService) {
         this.productStoreService = productStoreService;
     }
 

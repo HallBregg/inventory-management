@@ -23,7 +23,7 @@ class ProductController {
 
     @GetMapping
     List<Product> getAllProducts() {
-        return  productStoreService.findAll();
+        return productStoreService.findAll();
     }
 
     @GetMapping("/{id}")

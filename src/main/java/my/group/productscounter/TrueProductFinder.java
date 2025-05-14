@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-@ConditionalOnProperty(name="product.finder.fake", havingValue = "true")
+@ConditionalOnProperty(name = "product.finder.fake", havingValue = "true")
 class TrueProductFinder implements ProductFinder {
 
     @Override
