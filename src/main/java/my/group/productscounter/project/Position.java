@@ -7,7 +7,7 @@ import java.util.Objects;
 
 
 @Embeddable
-class Position {
+class Position{
 
     @Column(name = "position", nullable = false)
     private int value;
@@ -38,5 +38,9 @@ class Position {
     @Override
     public int hashCode() {
         return Objects.hash(value);
+    }
+
+    public int intValue(){
+        return this.value;
     }
 }

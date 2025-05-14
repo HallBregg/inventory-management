@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-class Product {
+public class Product {
     @Id
     @GeneratedValue
     private Long id;

@@ -67,7 +67,7 @@ class ProductNotFound extends ProjectServiceException {
 
 
 @Service
-class ProjectService {
+public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProductFinder productFinder;
 
@@ -78,7 +78,7 @@ class ProjectService {
     }
 
     @Transactional
-    Project createProject(CreateProjectCommand command) {
+    public Project createProject(CreateProjectCommand command) {
         return projectRepository.save(new Project(command.name()));
     }
 

@@ -6,41 +6,41 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 
 
 @RestController
 @RequestMapping("/api/products")
 @Validated
-class ProductController {
+class ProductStoreController {
 
     private final ProductStoreService productStoreService;
 
     @Autowired
-    ProductController(ProductStoreService productStoreService) {
+    ProductStoreController(ProductStoreService productStoreService) {
         this.productStoreService = productStoreService;
     }
 
     @GetMapping
-    List<Product> getAllProducts() {
-        return productStoreService.findAll();
+    Collection<ProductResponse> getAllProducts() {
+        return ProductResponse.of(productStoreService.findAll());
     }
 
     @GetMapping("/{id}")
-    Product getProductById(@PathVariable Long id) {
-        return productStoreService.findById(id);
+    ProductResponse getProduct(@PathVariable Long id) {
+        return ProductResponse.of(productStoreService.findById(id));
     }
 
     @PutMapping("/{id}")
-    void updateProduct(@PathVariable int id, @Valid @RequestBody UpdateProductCommand updateProductCommand) {
-        productStoreService.update(updateProductCommand);
+    void updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductRequest request) {
+        productStoreService.update(new UpdateProductCommand(id, request.name(), request.properties()));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    void createProduct(
-            @Valid @RequestBody CreateProductCommand createProductCommand) {
-        productStoreService.create(createProductCommand);
+    void createProduct(@Valid @RequestBody CreateProductRequest request) {
+        productStoreService.create(new CreateProductCommand(request.name(), request.properties()));
     }
 
     @DeleteMapping("/{id}")

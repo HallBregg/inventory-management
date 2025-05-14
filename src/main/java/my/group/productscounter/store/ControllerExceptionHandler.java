@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 record ErrorResponse(Integer code, String message) {
 }
 
-@ControllerAdvice(assignableTypes = ProductController.class)
+@ControllerAdvice(assignableTypes = ProductStoreController.class)
 class ProductControllerExceptionHandler {
 
     @ExceptionHandler(ProductCouldNotBeCreatedException.class)

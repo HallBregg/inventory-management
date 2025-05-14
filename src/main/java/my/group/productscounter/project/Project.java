@@ -14,7 +14,7 @@ class StageNotFound extends RuntimeException {
 
 @Entity
 @Table(name = "projects")
-class Project extends BaseEntity {
+public class Project extends BaseEntity {
 
     @Column(nullable = false)
     private String name;

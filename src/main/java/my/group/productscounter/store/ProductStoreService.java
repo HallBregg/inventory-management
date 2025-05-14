@@ -76,7 +76,7 @@ public class ProductStoreService {
         this.productRepository = productRepository;
     }
 
-    void create(CreateProductCommand command) {
+    public Product create(CreateProductCommand command) {
         Product product = new Product();
         product.setName(command.name());
         command.properties().forEach(property -> {
@@ -84,7 +84,7 @@ public class ProductStoreService {
         });
 
         try {
-            productRepository.save(product);
+            return productRepository.save(product);
         } catch (Exception e) {
             throw new ProductCouldNotBeCreatedException();
         }

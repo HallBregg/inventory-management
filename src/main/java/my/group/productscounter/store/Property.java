@@ -7,7 +7,7 @@ import java.util.Objects;
 
 
 @Embeddable
-class Property {
+public class Property {
     @Column(name = "property_name", nullable = false)
     private String name;
 
