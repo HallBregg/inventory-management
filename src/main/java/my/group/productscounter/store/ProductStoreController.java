@@ -1,6 +1,9 @@
 package my.group.productscounter.store;
 
 import jakarta.validation.Valid;
+import my.group.productscounter.store.dto.CreateProductDto;
+import my.group.productscounter.store.dto.ProductDto;
+import my.group.productscounter.store.dto.UpdateProductDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -23,24 +26,24 @@ class ProductStoreController {
     }
 
     @GetMapping
-    Collection<ProductResponse> getAllProducts() {
-        return ProductResponse.of(productStoreService.findAll());
+    Collection<ProductDto> getAllProducts() {
+        return productStoreService.findAll();
     }
 
     @GetMapping("/{id}")
-    ProductResponse getProduct(@PathVariable Long id) {
-        return ProductResponse.of(productStoreService.findById(id));
+    ProductDto getProduct(@PathVariable Long id) {
+        return productStoreService.findById(id);
     }
 
     @PutMapping("/{id}")
-    void updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductRequest request) {
-        productStoreService.update(new UpdateProductCommand(id, request.name(), request.properties()));
+    ProductDto updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductDto request) {
+        return productStoreService.update(request);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    void createProduct(@Valid @RequestBody CreateProductRequest request) {
-        productStoreService.create(new CreateProductCommand(request.name(), request.properties()));
+    ProductDto createProduct(@Valid @RequestBody CreateProductDto request) {
+        return productStoreService.create(new CreateProductDto(request.name(), request.properties()));
     }
 
     @DeleteMapping("/{id}")

@@ -1,6 +1,6 @@
-package my.group.productscounter.store;
+package my.group.productscounter.store.exception;
 
-abstract class ProductStoreServiceException extends RuntimeException {
+public abstract class ProductStoreServiceException extends RuntimeException {
     private String code = "BASE_ERROR";
 
     protected ProductStoreServiceException(String code) {

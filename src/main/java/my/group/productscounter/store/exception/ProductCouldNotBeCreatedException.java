@@ -1,6 +1,6 @@
-package my.group.productscounter.store;
+package my.group.productscounter.store.exception;
 
-class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
+public class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
     private static final String CODE = "PRODUCT_COULD_NOT_BE_CREATED";
 
     protected ProductCouldNotBeCreatedException() {

@@ -1,9 +1,9 @@
-package my.group.productscounter.store;
+package my.group.productscounter.store.exception;
 
-class ProductNotFoundException extends ProductStoreServiceException {
+public class ProductNotFoundException extends ProductStoreServiceException {
     private static final String CODE = "PRODUCT_NOT_FOUND";
 
-    protected ProductNotFoundException() {
+    public ProductNotFoundException() {
         super(CODE);
     }
 
