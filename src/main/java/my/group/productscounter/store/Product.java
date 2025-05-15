@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-public class Product {
+class Product {
     @Id
     @GeneratedValue
     private Long id;
@@ -32,15 +32,15 @@ public class Product {
         this.name = name;
     }
 
-    public String getName() {
+    String getName() {
         return this.name;
     }
 
-    public Long getId() {
+    Long getId() {
         return id;
     }
 
-    public Set<Property> getProperties() {
+    Set<Property> getProperties() {
         return this.properties;
     }
 }
