@@ -1,4 +1,4 @@
-package my.group.productscounter;
+package my.group.productscounter.infrastructure;
 
 import my.group.productscounter.project.ProductFinder;
 import my.group.productscounter.store.ProductStoreService;
@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnProperty(name = "product.finder.fake", havingValue = "false", matchIfMissing = true)
-public class StoreProductFinder implements ProductFinder {
+class StoreProductFinder implements ProductFinder {
     private final ProductStoreService productStoreService;
 
     StoreProductFinder(ProductStoreService productStoreService) {

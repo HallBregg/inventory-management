@@ -1,4 +1,4 @@
-package my.group.productscounter;
+package my.group.productscounter.infrastructure;
 
 import my.group.productscounter.project.ProductFinder;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
