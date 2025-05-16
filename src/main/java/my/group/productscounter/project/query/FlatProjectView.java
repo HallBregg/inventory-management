@@ -1,4 +1,4 @@
-package my.group.productscounter.project;
+package my.group.productscounter.project.query;
 
 import java.util.UUID;
 

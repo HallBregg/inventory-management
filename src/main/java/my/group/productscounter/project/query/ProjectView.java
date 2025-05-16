@@ -1,4 +1,4 @@
-package my.group.productscounter.project;
+package my.group.productscounter.project.query;
 
 
 import java.util.List;
@@ -13,5 +13,5 @@ record StageProductView(int position, int quantity, Long id, String name, List<S
 record StageView(UUID id, String name, List<StageProductView> products) {
 }
 
-record ProjectView(UUID id, String name, List<StageView> stages) {
+public record ProjectView(UUID id, String name, List<StageView> stages) {
 }

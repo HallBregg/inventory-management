@@ -3,6 +3,8 @@ package my.group.productscounter.project;
 
 import jakarta.validation.Valid;
 import my.group.productscounter.project.dto.*;
+import my.group.productscounter.project.query.ProjectQuery;
+import my.group.productscounter.project.query.ProjectView;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

@@ -1,6 +1,7 @@
-package my.group.productscounter.project;
+package my.group.productscounter.project.query;
 
 
+import my.group.productscounter.project.Project;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
