@@ -7,7 +7,7 @@ import java.util.Objects;
 
 
 @Embeddable
-public class Property {
+class Property {
     @Column(name = "property_name", nullable = false)
     private String name;
 
@@ -34,11 +34,11 @@ public class Property {
         return Objects.hash(name, value);
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public String getValue() {
+    String getValue() {
         return value;
     }
 }

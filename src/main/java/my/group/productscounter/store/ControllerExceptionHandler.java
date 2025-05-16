@@ -1,6 +1,8 @@
 package my.group.productscounter.store;
 
 
+import my.group.productscounter.store.exception.ProductCouldNotBeCreatedException;
+import my.group.productscounter.store.exception.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

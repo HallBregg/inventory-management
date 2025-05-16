@@ -1,70 +1,30 @@
 package my.group.productscounter.store;
 
 import jakarta.transaction.Transactional;
+import my.group.productscounter.store.dto.CreateProductDto;
+import my.group.productscounter.store.dto.ProductDto;
+import my.group.productscounter.store.dto.PropertyDto;
+import my.group.productscounter.store.dto.UpdateProductDto;
+import my.group.productscounter.store.exception.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
-abstract class ProductStoreServiceException extends RuntimeException {
-    private String code = "BASE_ERROR";
-
-    protected ProductStoreServiceException(String code) {
-        super();
-        this.code = code;
-    }
-
-    protected ProductStoreServiceException(String code, String message) {
-        super(message);
-        this.code = code;
-    }
-
-    protected ProductStoreServiceException(String code, Throwable cause) {
-        super(cause);
-        this.code = code;
-    }
-
-    protected ProductStoreServiceException(String code, String message, Throwable cause) {
-        super(message, cause);
-        this.code = code;
-    }
-
-    String getCode() {
-        return code;
-    }
-}
-
-class ProductNotFoundException extends ProductStoreServiceException {
-    private static final String CODE = "PRODUCT_NOT_FOUND";
-
-    protected ProductNotFoundException() {
-        super(CODE);
-    }
-
-    protected ProductNotFoundException(String message) {
-        super(CODE, message);
-    }
-
-    protected ProductNotFoundException(String message, Throwable cause) {
-        super(CODE, message, cause);
-    }
-}
-
-class ProductCouldNotBeCreatedException extends ProductStoreServiceException {
-    private static final String CODE = "PRODUCT_COULD_NOT_BE_CREATED";
-
-    protected ProductCouldNotBeCreatedException() {
-        super(CODE);
-    }
-
-    protected ProductCouldNotBeCreatedException(String message) {
-        super(CODE, message);
-    }
-
-    protected ProductCouldNotBeCreatedException(String message, Throwable cause) {
-        super(CODE, message, cause);
-    }
+class ProductToDtoMapper {
+    static ProductDto of(Product product){
+        return new ProductDto(
+                product.getId(),
+                product.getName(),
+                product.getProperties()
+                        .stream()
+                        .map(property -> new PropertyDto(
+                                property.getName(),
+                                property.getValue()))
+                        .collect(Collectors.toSet()));
+    };
 }
 
 @Service
@@ -76,18 +36,13 @@ public class ProductStoreService {
         this.productRepository = productRepository;
     }
 
-    public Product create(CreateProductCommand command) {
+    ProductDto create(CreateProductDto command) {
         Product product = new Product();
         product.setName(command.name());
         command.properties().forEach(property -> {
             product.addProperty(new Property(property.name(), property.value()));
         });
-
-        try {
-            return productRepository.save(product);
-        } catch (Exception e) {
-            throw new ProductCouldNotBeCreatedException();
-        }
+        return ProductToDtoMapper.of(productRepository.save(product));
     }
 
     void delete(Long id) {
@@ -95,7 +50,7 @@ public class ProductStoreService {
     }
 
     @Transactional
-    void update(UpdateProductCommand command) {
+    ProductDto update(UpdateProductDto command) {
         Product product = productRepository
                 .findById(command.id())
                 .orElseThrow(ProductNotFoundException::new);
@@ -110,14 +65,17 @@ public class ProductStoreService {
                 product.addProperty(new Property(property.name(), property.value()));
             });
         }
+        return ProductToDtoMapper.of(product);
     }
 
-    Product findById(Long id) {
-        return productRepository.findById(id).orElseThrow(ProductNotFoundException::new);
+    ProductDto findById(Long id) {
+        return ProductToDtoMapper.of(productRepository
+                .findById(id)
+                .orElseThrow(ProductNotFoundException::new));
     }
 
-    List<Product> findAll() {
-        return productRepository.findAll();
+    List<ProductDto> findAll() {
+        return productRepository.findAll().stream().map(ProductToDtoMapper::of).toList();
     }
 
     List<String> listAllPropertyNames() {

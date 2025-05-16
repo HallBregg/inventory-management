@@ -1,5 +1,6 @@
-package my.group.productscounter.project;
+package my.group.productscounter.project.query;
 
+import my.group.productscounter.project.exception.ProjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 
 
 @Service
-class ProjectQuery {
+public class ProjectQuery {
     private final ProjectQueryRepository projectQueryRepository;
 
     @Autowired
@@ -16,7 +17,7 @@ class ProjectQuery {
         this.projectQueryRepository = projectQueryRepository;
     }
 
-    ProjectView getFullProject(UUID projectId) {
+    public ProjectView getFullProject(UUID projectId) {
         List<FlatProjectView> flatProjectViewList = projectQueryRepository.getFlatProjectViews(projectId);
         if(flatProjectViewList.isEmpty()) throw new ProjectNotFoundException();
 

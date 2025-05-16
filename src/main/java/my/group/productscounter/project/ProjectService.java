@@ -1,70 +1,51 @@
 package my.group.productscounter.project;
 
 import jakarta.transaction.Transactional;
+import my.group.productscounter.project.dto.*;
+import my.group.productscounter.project.exception.ProductNotFound;
+import my.group.productscounter.project.exception.ProjectNotFoundException;
+import my.group.productscounter.project.exception.ProjectStageUpdateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
-abstract class ProjectServiceException extends RuntimeException {
-    private String code = "BASE_ERROR";
-
-    protected ProjectServiceException(String code) {
-        super();
-        this.code = code;
+class StageProductToDtoMapper{
+    static StageProductDto of(StageProduct product){
+        return new StageProductDto(product.getProductId(), product.getPosition().intValue(), product.getQuantity());
     }
 
-    protected ProjectServiceException(String code, String message) {
-        super(message);
-        this.code = code;
-    }
-
-    protected ProjectServiceException(String code, Throwable cause) {
-        super(cause);
-        this.code = code;
-    }
-
-    protected ProjectServiceException(String code, String message, Throwable cause) {
-        super(message, cause);
-        this.code = code;
-    }
-
-    String getCode() {
-        return code;
+    static List<StageProductDto> of(List<StageProduct> products){
+        return products.stream().map(StageProductToDtoMapper::of).toList();
     }
 }
 
+class StageToDtoMapper{
+    static StageDto of(Stage stage){
+        return new StageDto(stage.getId(), stage.getName(), StageProductToDtoMapper.of(stage.getProducts()));
+    }
 
-class ProjectNotFoundException extends ProjectServiceException {
-    private static final String CODE = "PROJECT_NOT_FOUND";
-
-    ProjectNotFoundException() {
-        super(CODE);
+    static List<StageDto> of(List<Stage> stages){
+        return stages.stream().map(StageToDtoMapper::of).toList();
     }
 }
 
-class ProjectStageUpdateException extends ProjectServiceException {
-    private static final String CODE = "PROJECT_STAGE_UPDATE_ERROR";
-
-    ProjectStageUpdateException() {
-        super(CODE);
+class ProjectToIdentifierDtoMapper{
+    static ProjectIdentifierDto of(Project project){
+        return new ProjectIdentifierDto(project.getId(), project.getName());
     }
 
-    ProjectStageUpdateException(Throwable cause) {
-        super(CODE, cause);
+    static List<ProjectIdentifierDto> of(List<Project> projects){
+        return projects.stream().map(ProjectToIdentifierDtoMapper::of).toList();
     }
 }
 
-
-class ProductNotFound extends ProjectServiceException {
-    private static final String CODE = "PRODUCT_NOT_FOUND";
-
-    ProductNotFound(Long productId) {
-        super(CODE, String.format("Product with id %s does not exist.", productId));
+class ProjectToWithStagesDtoMapper{
+    static ProjectWithStagesDto of(Project project){
+        return new ProjectWithStagesDto(project.getId(), project.getName(), StageToDtoMapper.of(project.getStages()));
     }
 }
-
 
 @Service
 public class ProjectService {
@@ -78,23 +59,24 @@ public class ProjectService {
     }
 
     @Transactional
-    public Project createProject(CreateProjectCommand command) {
-        return projectRepository.save(new Project(command.name()));
+    public ProjectIdentifierDto createProject(CreateProjectDto command) {
+        Project project = projectRepository.save(new Project(command.name()));
+        return new ProjectIdentifierDto(project.getId(), project.getName());
     }
 
-    List<Project> listAllProjects() {
-        return projectRepository.findAll();
+    List<ProjectIdentifierDto> listAllProjects() {
+        return ProjectToIdentifierDtoMapper.of(projectRepository.findAll());
     }
 
-    Project getProject(UUID projectId) {
-        return projectRepository.findById(projectId).orElseThrow(ProjectNotFoundException::new);
+    ProjectWithStagesDto getProject(UUID projectId) {
+        return ProjectToWithStagesDtoMapper.of(projectRepository.findById(projectId).orElseThrow(ProjectNotFoundException::new));
     }
 
     @Transactional
-    Project updateProject(UpdateProjectCommand command) {
-        Project project = getProject(command.projectId());
+    ProjectIdentifierDto updateProject(UpdateProjectDto command) {
+        Project project = projectRepository.findById(command.projectId()).orElseThrow(ProjectNotFoundException::new);
         project.setName(command.name());
-        return projectRepository.save(project);
+        return ProjectToIdentifierDtoMapper.of(projectRepository.save(project));
     }
 
     @Transactional
@@ -103,14 +85,14 @@ public class ProjectService {
     }
 
     @Transactional
-    Stage createStage(CreateStageCommand command) {
-        Project project = getProject(command.projectId());
-        return project.addStage(command.name());
+    StageDto createStage(CreateStageDto command) {
+        Project project = projectRepository.findById(command.projectId()).orElseThrow(ProjectNotFoundException::new);
+        return StageToDtoMapper.of(project.addStage(command.name()));
     }
 
     @Transactional
-    Stage updateStage(UpdateStageCommand command) {
-        Project project = getProject(command.projectId());
+    StageDto updateStage(UpdateStageDto command) {
+        Project project = projectRepository.findById(command.projectId()).orElseThrow(ProjectNotFoundException::new);
         final Stage stage;
 
         try {
@@ -124,13 +106,12 @@ public class ProjectService {
             if (!productFinder.existsById(product.productId())) throw new ProductNotFound(product.productId());
         });
         stage.replaceProducts(command.products());
-        return stage;
+        return StageToDtoMapper.of(stage);
     }
 
     @Transactional
-    void deleteStage(DeleteStageCommand command) {
-        Project project = getProject(command.projectId());
+    void deleteStage(DeleteStageDto command) {
+        Project project = projectRepository.findById(command.projectId()).orElseThrow(ProjectNotFoundException::new);
         project.deleteStage(command.stageId());
     }
-
 }

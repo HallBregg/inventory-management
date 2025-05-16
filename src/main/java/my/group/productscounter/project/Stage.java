@@ -3,6 +3,7 @@ package my.group.productscounter.project;
 
 import jakarta.persistence.*;
 import my.group.productscounter.BaseEntity;
+import my.group.productscounter.project.dto.StageProductDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ class Stage extends BaseEntity {
     }
 
 
-    void replaceProducts(List<StageProductSpec> specs) {
+    void replaceProducts(List<StageProductDto> specs) {
         Map<Position, StageProduct> map = products
                 .stream()
                 .collect(Collectors.toMap(
@@ -51,13 +52,13 @@ class Stage extends BaseEntity {
                         stageProduct -> stageProduct));
 
         List<StageProduct> ordered = new ArrayList<>(specs.size());
-        for (StageProductSpec spec : specs) {
-            Position position = new Position(spec.position());
+        for (StageProductDto stageProductDto : specs) {
+            Position position = new Position(stageProductDto.position());
             StageProduct product = map.remove(position);
             if (product != null) {
-                product.setQuantity(spec.quantity());
+                product.setQuantity(stageProductDto.quantity());
             } else {
-                product = new StageProduct(this, spec.productId(), spec.quantity(), position);
+                product = new StageProduct(this, stageProductDto.productId(), stageProductDto.quantity(), position);
             }
             ordered.add(product);
         }
