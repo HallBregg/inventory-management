@@ -1,5 +1,6 @@
 package my.group.productscounter.project;
 
+import my.group.productscounter.project.exception.ProjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

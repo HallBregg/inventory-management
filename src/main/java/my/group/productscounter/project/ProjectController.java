@@ -2,6 +2,7 @@ package my.group.productscounter.project;
 
 
 import jakarta.validation.Valid;
+import my.group.productscounter.project.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,31 +28,30 @@ class ProjectController {
     }
 
     @PostMapping
-    ResponseEntity<ProjectSummaryResponse> createProject(@Valid @RequestBody CreateProjectRequest request) {
-        Project project = projectService.createProject(new CreateProjectCommand(request.name()));
+    ResponseEntity<ProjectIdentifierDto> createProject(@Valid @RequestBody CreateProjectDto request) {
+        ProjectIdentifierDto dto = projectService.createProject(request);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(project.getId()).toUri();
+                .buildAndExpand(dto.id()).toUri();
         return ResponseEntity
                 .created(location)
-                .body(new ProjectSummaryResponse(project.getId(), project.getName()));
+                .body(dto);
     }
 
     @GetMapping
-    List<ProjectSummaryResponse> getAllProjects() {
-        return ProjectSummaryResponse.of(projectService.listAllProjects());
+    List<ProjectIdentifierDto> getAllProjects() {
+        return projectService.listAllProjects();
     }
 
     @GetMapping("/{id}")
-    ProjectResponse getProject(@PathVariable UUID id) {
-        return ProjectResponse.of(projectService.getProject(id));
+    ProjectWithStagesDto getProject(@PathVariable UUID id) {
+        return projectService.getProject(id);
     }
 
     @PutMapping("/{id}")
-    ProjectSummaryResponse updateProject(@PathVariable UUID id, @Valid @RequestBody UpdateProjectRequest request) {
-        return ProjectSummaryResponse
-                .of(projectService.updateProject(new UpdateProjectCommand(id, request.name())));
+    ProjectIdentifierDto updateProject(@PathVariable UUID id, @Valid @RequestBody UpdateProjectRequest request) {
+        return projectService.updateProject(new UpdateProjectDto(id, request.name()));
     }
 
     @DeleteMapping("/{id}")
@@ -61,19 +61,22 @@ class ProjectController {
     }
 
     @PostMapping("/{projectId}/stages")
-    StageResponse createStage(@PathVariable UUID projectId, @Valid @RequestBody CreateStageRequest request) {
-        return StageResponse.of(projectService.createStage(new CreateStageCommand(projectId, request.name())));
+    StageDto createStage(@PathVariable UUID projectId, @Valid @RequestBody CreateStageRequest request) {
+        return projectService.createStage(new CreateStageDto(projectId, request.name()));
     }
 
     @PutMapping("/{projectId}/stages/{stageId}")
-    StageResponse updateStage(@PathVariable UUID projectId, @PathVariable UUID stageId, @Valid @RequestBody UpdateStageRequest request) {
-        return StageResponse.of(projectService.updateStage(new UpdateStageCommand(
-                projectId, stageId, request.name(), request.products())));
+    StageDto updateStage(
+            @PathVariable UUID projectId,
+            @PathVariable UUID stageId,
+            @Valid @RequestBody UpdateStageRequest request
+    ) {
+        return projectService.updateStage(new UpdateStageDto(projectId, stageId, request.name(), request.products()));
     }
 
     @DeleteMapping("/{projectId}/stages/{stageId}")
     ResponseEntity<?> deleteStage(@PathVariable UUID projectId, @PathVariable UUID stageId) {
-        projectService.deleteStage(new DeleteStageCommand(projectId, stageId));
+        projectService.deleteStage(new DeleteStageDto(projectId, stageId));
         return ResponseEntity.noContent().build();
     }
 
