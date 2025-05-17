@@ -1,5 +1,6 @@
 import api from './api.js'
 import {Project} from "@/integrations/projects/models/Project.js";
+import {ProjectDetails, Stage, StageProduct} from "@/integrations/projects/models/ProjectDetails.js";
 
 export const getProjects = async () => {
     const response = await api.get('')
@@ -14,4 +15,38 @@ export const createProject = async (name) => {
 
 export const deleteProject = async (id) => {
     const response = await api.delete(`/${id}`)
+}
+
+
+export const getProjectDetails = async (id) => {
+    const res = await api.get(`/full/${id}`)
+    const data = res.data
+
+    const stages = data.stages.map(stage => new Stage({
+        id: stage.id,
+        name: stage.name,
+        products: stage.products.map(product => {
+            const attrObj = Object.fromEntries(
+                product.properties.map(attr => [attr.name, attr.value])
+            )
+            return new StageProduct({
+                id: product.id,
+                name: product.name,
+                position: product.position,
+                quantity: product.quantity,
+                attributes: attrObj
+            })
+        })
+    }))
+
+    return new ProjectDetails({
+        id: data.id,
+        name: data.name,
+        stages
+    })
+}
+
+
+export const updateProject = async (id, name) => {
+    const res = await api.put(`/${id}`, {name: name})
 }

@@ -57,7 +57,7 @@
           class="border rounded p-2 text-sm space-y-1"
         >
           <div class="flex justify-between items-center">
-            <span class="font-medium">{{ item.product.name }}</span>
+            <span class="font-medium">{{ item.name }}</span>
             <div class="space-x-2">
               <button
                 @click="moveProduct(stageIndex, productIndex, -1); markDirty()"
@@ -78,7 +78,7 @@
             </div>
           </div>
           <ul class="ml-4 text-gray-700 list-disc">
-            <li v-for="(val, key) in item.product.attributes" :key="key">{{ key }}: {{ val }}</li>
+            <li v-for="(val, key) in item.attributes" :key="key">{{ key }}: {{ val }}</li>
           </ul>
           <div class="flex items-center space-x-2 mt-1">
             <label class="text-xs">Quantity:</label>
@@ -240,12 +240,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import {ref, computed, onMounted} from 'vue'
+import {getProjectDetails, updateProject} from "@/integrations/projects/services.js";
+import {useRoute} from "vue-router";
 
 const showModal = ref(false)
 const currentStageIndex = ref(null)
 const projectName = ref('My Project')
 const isDirty = ref(false)
+
+const project = ref()
 
 let autoSaveTimer = null
 
@@ -262,11 +266,11 @@ const toggleStage = (index) => {
 const summarizeStage = (stage) => {
   const map = new Map()
   for (const item of stage.products) {
-    const key = item.product.name + JSON.stringify(item.product.attributes)
+    const key = item.name + JSON.stringify(item.attributes)
     if (!map.has(key)) {
       map.set(key, {
-        name: item.product.name,
-        attributes: item.product.attributes,
+        name: item.name,
+        attributes: item.attributes,
         quantity: 0
       })
     }
@@ -279,11 +283,11 @@ const summarizeProject = () => {
   const map = new Map()
   for (const stage of stages.value) {
     for (const item of stage.products) {
-      const key = item.product.name + JSON.stringify(item.product.attributes)
+      const key = item.name + JSON.stringify(item.attributes)
       if (!map.has(key)) {
         map.set(key, {
-          name: item.product.name,
-          attributes: item.product.attributes,
+          name: item.name,
+          attributes: item.attributes,
           quantity: 0
         })
       }
@@ -309,6 +313,12 @@ const markDirty = () => {
   console.log('Auto-saved project')
   scheduleAutoSave()
 
+}
+
+const changeName = async () => {
+  const id = useRoute().params.id
+  await updateProject(id, projectName.value)
+  markDirty()
 }
 
 const deleteProject = () => {
@@ -420,6 +430,18 @@ function removeProductFromStage(stageIndex, productIndex) {
   stages.value[stageIndex].products.splice(productIndex, 1)
   markDirty()
 }
+
+
+onMounted(async () => {
+  const id = useRoute().params.id
+  let projectDetails = await getProjectDetails(id)
+  project.value = projectDetails
+  projectName.value = projectDetails.name
+  stages.value = projectDetails.stages
+})
+
+
+
 </script>
 
 <style scoped>
