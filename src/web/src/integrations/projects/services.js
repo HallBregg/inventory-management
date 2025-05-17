@@ -52,6 +52,16 @@ export const updateProject = async (id, name) => {
 }
 
 
+export const createStage = async (projectId, name) => {
+    const response = await api.post(`/${projectId}/stages`, {name: name})
+}
+
+
+export const deleteStage = async (projectId, stageId) => {
+    await api.delete(`/${projectId}/stages/${stageId}`)
+}
+
+
 export const updateStage = async (projectId, stage) => {
     const body = {
         name: stage.name,

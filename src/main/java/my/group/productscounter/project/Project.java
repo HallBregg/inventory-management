@@ -60,6 +60,6 @@ public class Project extends BaseEntity {
     }
 
     void deleteStage(UUID stageId) {
-        stages.removeIf(stage -> stage.getId() == stageId);
+        stages.removeIf(stage -> stage.getId().equals(stageId));
     }
 }

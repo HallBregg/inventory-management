@@ -25,7 +25,15 @@
       <button @click="deleteProject" class="bg-red-600 text-white px-4 py-2 rounded ml-4">Delete Project</button>
     </div>
 
-    <button @click="addStage" class="bg-blue-700 text-white px-4 py-2 mb-4 rounded">+ Add Stage</button>
+    <button @click="showAddStageModal = true" class="bg-blue-700 text-white px-4 py-2 mb-4 rounded">
+      + Add Stage
+    </button>
+
+    <AddStageModal
+      v-if="showAddStageModal"
+      @close="showAddStageModal = false"
+      @submit="handleCreateStage"
+    />
 
     <div
       v-for="(stage, stageIndex) in project.stages"
@@ -42,7 +50,7 @@
           <button @click="openModalForStage(stageIndex)" class="bg-blue-600 text-white px-3 py-1 rounded">
             + Add Product
           </button>
-          <button @click="removeStage(stageIndex)" class="bg-red-500 text-white px-3 py-1 rounded">
+          <button @click="removeStage(stage.id)" class="bg-red-500 text-white px-3 py-1 rounded">
             Delete Stage
           </button>
         </div>
@@ -126,19 +134,6 @@
       @select="handleProductSelect"
     />
 
-
-    <!--    <div v-if="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">-->
-<!--      <div class="bg-white w-[500px] p-6 rounded shadow-lg">-->
-<!--        <h2 class="text-lg font-semibold mb-4">[Mock] Add Product</h2>-->
-<!--        <button-->
-<!--          @click="selectMockProduct"-->
-<!--          class="bg-green-600 text-white px-4 py-2 rounded"-->
-<!--        >-->
-<!--          Add Mock Product-->
-<!--        </button>-->
-<!--        <button @click="showModal = false" class="ml-4 px-4 py-2 border rounded">Close</button>-->
-<!--      </div>-->
-<!--    </div>-->
   </div>
   <div v-else>Nie mamy pańskiego płaszcza i co nam pan zrobi?</div>
 </template>
@@ -146,8 +141,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import {getProjectDetails, updateProject, updateStage} from '@/integrations/projects/services'
+import {createStage, deleteStage, getProjectDetails, updateProject, updateStage} from '@/integrations/projects/services'
 import ProductSelectModal from "@/components/ProductSelectModal.vue";
+import AddStageModal from "@/components/AddStageModal.vue";
 
 const route = useRoute()
 const project = ref(null)
@@ -156,6 +152,7 @@ const showModal = ref(false)
 const currentStageIndex = ref(null)
 let saveTimer = null
 const stageSaveTimers = new Map()
+const showAddStageModal = ref(false)
 
 const products = ref([
   {
@@ -169,7 +166,6 @@ const products = ref([
     attributes: { material: 'portland' }
   }
 ])
-
 const availableAttributes = ref([
   'color', 'size', 'material', 'brand', 'length'
 ])
@@ -222,33 +218,31 @@ const deleteProject = () => {
   console.log('Project deleted:', project.value.id)
 }
 
-const addStage = () => {
-  project.value.stages.push({
-    id: crypto.randomUUID(),
-    name: `Stage ${project.value.stages.length + 1}`,
-    products: []
-  })
+const handleCreateStage = async (name) => {
+  try {
+    await createStage(project.value.id, name)
+    project.value = await getProjectDetails(project.value.id)
+    // project.value.stages.push(stage)
+    showAddStageModal.value = false
+  } catch (err) {
+    console.error('Failed to create stage:', err.message)
+  }
 }
 
-const removeStage = (index) => {
-  project.value.stages.splice(index, 1)
+const removeStage = async (stageId) => {
+  isDirty.value = true
+  try {
+    await deleteStage(project.value.id, stageId)
+    project.value = await getProjectDetails(project.value.id)
+    isDirty.value = false
+  } catch (err) {
+    console.error()
+  }
 }
 
 const openModalForStage = (index) => {
   currentStageIndex.value = index
   showModal.value = true
-}
-
-const selectMockProduct = () => {
-  const stage = project.value.stages[currentStageIndex.value]
-  stage.products.push({
-    id: crypto.randomUUID(),
-    name: 'Mock Product',
-    quantity: 1,
-    position: stage.products.length,
-    attributes: { color: 'red', size: 'M' }
-  })
-  showModal.value = false
 }
 
 const removeProduct = (stageIndex, productIndex) => {

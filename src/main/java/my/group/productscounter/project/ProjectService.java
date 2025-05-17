@@ -87,7 +87,10 @@ public class ProjectService {
     @Transactional
     StageDto createStage(CreateStageDto command) {
         Project project = projectRepository.findById(command.projectId()).orElseThrow(ProjectNotFoundException::new);
-        return StageToDtoMapper.of(project.addStage(command.name()));
+        Stage stage = project.addStage(command.name());
+        projectRepository.save(project);
+        projectRepository.flush();
+        return StageToDtoMapper.of(stage);
     }
 
     @Transactional

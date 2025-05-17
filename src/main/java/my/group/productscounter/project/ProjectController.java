@@ -77,7 +77,7 @@ class ProjectController {
     }
 
     @DeleteMapping("/{projectId}/stages/{stageId}")
-    ResponseEntity<?> deleteStage(@PathVariable UUID projectId, @PathVariable UUID stageId) {
+    ResponseEntity<?> deleteStage(@PathVariable UUID projectId, @PathVariable UUID stageId) throws InterruptedException {
         projectService.deleteStage(new DeleteStageDto(projectId, stageId));
         return ResponseEntity.noContent().build();
     }
