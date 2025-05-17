@@ -1,57 +1,92 @@
 <template>
-  <div class="p-4">
-    <h1 class="text-2xl font-bold mb-4">Projects</h1>
-    <div v-if="projects.length" class="space-y-3">
-      <div
+  <div class="p-6 space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Projects</h1>
+      <button @click="showAddModal = true" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add Project</button>
+    </div>
+
+    <!-- Project List -->
+    <ul class="space-y-2">
+      <li
         v-for="project in projects"
         :key="project.id"
         class="border rounded p-4 flex justify-between items-center"
       >
         <div>
-          <h2 class="text-lg font-semibold">{{ project.name }}</h2>
-          <p class="text-sm text-gray-500">Created: {{ project.createdAt }}</p>
-          <p class="text-sm text-gray-500">Updated: {{ project.updatedAt }}</p>
+          <div class="font-semibold">{{ project.name }}</div>
+          <div class="text-xs text-gray-500">ID: {{ project.id }}</div>
         </div>
-        <div class="flex space-x-2">
-          <button
-            @click="goToDetails(project.id)"
-            class="bg-blue-600 text-white px-3 py-1 rounded"
+        <div class="space-x-4">
+          <RouterLink
+            :to="`/projects/${project.id}`"
+            class="text-blue-600 hover:underline text-sm"
           >
-            Details
-          </button>
+            View
+          </RouterLink>
           <button
             @click="deleteProject(project.id)"
-            class="bg-red-500 text-white px-3 py-1 rounded"
+            class="text-red-600 text-sm hover:underline"
           >
             Delete
           </button>
         </div>
+      </li>
+    </ul>
+
+    <!-- Modal -->
+    <div v-if="showAddModal" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      <div class="bg-white p-6 rounded shadow w-[400px]">
+        <h2 class="text-lg font-semibold mb-4">Add New Project</h2>
+        <input
+          v-model="newProjectName"
+          placeholder="Project name"
+          class="border w-full px-3 py-2 rounded mb-4"
+        />
+        <div class="flex justify-end gap-2">
+          <button @click="showAddModal = false" class="px-4 py-2 border rounded">Cancel</button>
+          <button @click="addProject" class="px-4 py-2 bg-blue-600 text-white rounded">Add</button>
+        </div>
       </div>
     </div>
-    <div v-else class="text-gray-500">No projects found.</div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import axios from 'axios';
 
-const router = useRouter()
+const projects = ref([])
+const showAddModal = ref(false)
+const newProjectName = ref('')
 
-const projects = ref([
-  { id: 1, name: 'Project Alpha', createdAt: '2024-01-01', updatedAt: '2024-05-15' },
-  { id: 2, name: 'Project Beta', createdAt: '2024-02-20', updatedAt: '2024-05-10' },
-])
+onMounted(async () => {
+  axios.get("http://localhost:8080/api/projects")
+    .then((response) => {
+      projects.value = response.data.map(p => ({
+        id: p.id,
+        name: p.name,
+        createdAt: null,      // placeholder for future API support
+        updatedAt: null
+      }))
+    })
 
-const goToDetails = (id) => {
-  router.push({ name: 'projectDetails', params: { id } })
+})
+const addProject = () => {
+  const id = crypto.randomUUID()
+  projects.value.push({
+    id,
+    name: newProjectName.value,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  })
+  console.log('Project added (mock):', newProjectName.value)
+  newProjectName.value = ''
+  showAddModal.value = false
 }
 
 const deleteProject = (id) => {
-  console.log('Deleting project with id:', id)
   projects.value = projects.value.filter(p => p.id !== id)
+  console.log('Project deleted (mock):', id)
 }
 </script>
-
-<style scoped>
-</style>
