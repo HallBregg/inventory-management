@@ -7,7 +7,7 @@
     </div>
 
     <!-- Project List -->
-    <ul class="space-y-2">
+    <ul v-if="projects.length" class="space-y-2">
       <li
         v-for="project in projects"
         :key="project.id"
@@ -25,7 +25,7 @@
             View
           </RouterLink>
           <button
-            @click="deleteProject(project.id)"
+            @click="deleteProjectHandler(project.id)"
             class="text-red-600 text-sm hover:underline"
           >
             Delete
@@ -33,6 +33,7 @@
         </div>
       </li>
     </ul>
+    <div v-else>No projects</div>
 
     <!-- Modal -->
     <div v-if="showAddModal" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
@@ -54,39 +55,36 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios';
+import {getProjects, createProject, deleteProject} from "@/integrations/projects/services.js";
 
 const projects = ref([])
 const showAddModal = ref(false)
 const newProjectName = ref('')
 
-onMounted(async () => {
-  axios.get("http://localhost:8080/api/projects")
-    .then((response) => {
-      projects.value = response.data.map(p => ({
-        id: p.id,
-        name: p.name,
-        createdAt: null,      // placeholder for future API support
-        updatedAt: null
-      }))
-    })
 
-})
-const addProject = () => {
-  const id = crypto.randomUUID()
-  projects.value.push({
-    id,
-    name: newProjectName.value,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  })
-  console.log('Project added (mock):', newProjectName.value)
-  newProjectName.value = ''
-  showAddModal.value = false
+const fetchAllProjects = async () => {
+  try{
+    projects.value = await getProjects()
+  } catch (err) {
+    console.error('Failed to load projects: ', err.message)
+  }
 }
 
-const deleteProject = (id) => {
-  projects.value = projects.value.filter(p => p.id !== id)
-  console.log('Project deleted (mock):', id)
+
+onMounted(async () => {
+  await fetchAllProjects()
+})
+
+
+const addProject = async () => {
+  await createProject(newProjectName.value)
+  newProjectName.value = ''
+  showAddModal.value = false
+  await fetchAllProjects()
+}
+
+const deleteProjectHandler = async (id) => {
+  await deleteProject(id)
+  await fetchAllProjects()
 }
 </script>

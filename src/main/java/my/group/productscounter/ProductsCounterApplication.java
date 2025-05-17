@@ -7,6 +7,7 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
+// DEV only for now!
 @Configuration
 class WebConfig implements WebMvcConfigurer {
     @Override
