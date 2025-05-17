@@ -8,7 +8,10 @@ import { RouterLink, RouterView } from 'vue-router'
     <header class="bg-gray-800 text-white shadow px-6 py-3 flex items-center justify-between">
       <div class="flex items-center gap-4">
         <!-- Logo -->
-        <div class="font-bold text-lg tracking-tight">🧱 BuildMate</div>
+        <RouterLink to="/">
+          <div class="font-bold text-lg tracking-tight">🧱 BuildMate</div>
+        </RouterLink>
+
         <!-- Navigation -->
         <nav class="flex gap-4 text-sm">
           <RouterLink to="/projects" class="hover:underline" active-class="text-yellow-300">Projects</RouterLink>

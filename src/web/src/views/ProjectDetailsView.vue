@@ -93,6 +93,20 @@
         </div>
       </div>
       <div v-else class="text-sm text-gray-500">No products added yet.</div>
+
+      <details class="mt-3">
+        <summary class="cursor-pointer text-sm text-blue-700 font-medium">Stage Summary</summary>
+        <ul class="mt-2 text-sm list-disc ml-6">
+          <li v-for="(summary, index) in summarizeStage(stage)" :key="index">
+            <div class="font-medium">{{ summary.name }} – Quantity: {{ summary.quantity }}</div>
+            <ul class="ml-4 text-gray-600 list-disc">
+              <li v-for="(val, key) in summary.attributes" :key="key">{{ key }}: {{ val }}</li>
+            </ul>
+          </li>
+        </ul>
+      </details>
+
+
     </div>
 
 
@@ -201,6 +215,27 @@
         </div>
       </div>
     </div>
+
+    <details class="mt-6 border-t pt-4">
+      <summary class="cursor-pointer text-base text-green-700 font-semibold">Project Summary</summary>
+      <div class="flex justify-between items-center mt-2">
+        <ul class="text-sm list-disc ml-6 space-y-2">
+          <li v-for="(summary, index) in summarizeProject()" :key="index">
+            <div class="font-medium">{{ summary.name }} – Quantity: {{ summary.quantity }}</div>
+            <ul class="ml-4 text-gray-600 list-disc">
+              <li v-for="(val, key) in summary.attributes" :key="key">{{ key }}: {{ val }}</li>
+            </ul>
+          </li>
+        </ul>
+        <button
+          @click="exportSummaryToCSV"
+          class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
+        >
+          ⬇ Export CSV
+        </button>
+      </div>
+    </details>
+
   </div>
 </template>
 
@@ -213,6 +248,51 @@ const projectName = ref('My Project')
 const isDirty = ref(false)
 
 let autoSaveTimer = null
+
+const expandedStages = ref(new Set())
+
+const toggleStage = (index) => {
+  if (expandedStages.value.has(index)) {
+    expandedStages.value.delete(index)
+  } else {
+    expandedStages.value.add(index)
+  }
+}
+
+const summarizeStage = (stage) => {
+  const map = new Map()
+  for (const item of stage.products) {
+    const key = item.product.name + JSON.stringify(item.product.attributes)
+    if (!map.has(key)) {
+      map.set(key, {
+        name: item.product.name,
+        attributes: item.product.attributes,
+        quantity: 0
+      })
+    }
+    map.get(key).quantity += item.quantity
+  }
+  return Array.from(map.values())
+}
+
+const summarizeProject = () => {
+  const map = new Map()
+  for (const stage of stages.value) {
+    for (const item of stage.products) {
+      const key = item.product.name + JSON.stringify(item.product.attributes)
+      if (!map.has(key)) {
+        map.set(key, {
+          name: item.product.name,
+          attributes: item.product.attributes,
+          quantity: 0
+        })
+      }
+      map.get(key).quantity += item.quantity
+    }
+  }
+  return Array.from(map.values())
+}
+
 
 const scheduleAutoSave = () => {
   if (autoSaveTimer) clearTimeout(autoSaveTimer)
