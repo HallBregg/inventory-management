@@ -66,4 +66,8 @@ class Stage extends BaseEntity {
         products.clear();
         products.addAll(ordered);
     }
+
+    void setName(String name) {
+        this.name = name;
+    }
 }

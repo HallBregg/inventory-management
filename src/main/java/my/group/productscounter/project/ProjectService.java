@@ -106,6 +106,7 @@ public class ProjectService {
             if (!productFinder.existsById(product.productId())) throw new ProductNotFound(product.productId());
         });
         stage.replaceProducts(command.products());
+        stage.setName(command.stageName());
         return StageToDtoMapper.of(stage);
     }
 

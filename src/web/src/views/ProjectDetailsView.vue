@@ -1,17 +1,17 @@
 <template>
-  <!-- Breadcrumb -->
-  <nav class="text-sm text-gray-500 mb-4">
-    <router-link to="/projects" class="text-blue-600 hover:underline">Projects</router-link>
-    <span class="mx-2">/</span>
-    <span>{{ projectName || 'Project Details' }}</span>
-  </nav>
+  <div v-if="project">
+    <!-- Breadcrumb -->
+    <nav class="text-sm text-gray-500 mb-4">
+      <router-link to="/projects" class="text-blue-600 hover:underline">Projects</router-link>
+      <span class="mx-2">/</span>
+      <span>{{ project?.name || 'Project Details' }}</span>
+    </nav>
 
-  <div>
     <!-- Project Header -->
     <div class="flex justify-between items-center mb-2">
       <input
-        v-model="projectName"
-        @input="markDirty"
+        v-model="project.name"
+        @input="debouncedSaveName"
         class="text-2xl font-bold border px-3 py-1 rounded w-full max-w-md"
       />
       <div v-if="isDirty" class="text-yellow-600 text-sm mb-4 flex items-center gap-2">
@@ -22,22 +22,20 @@
         Saving...
       </div>
       <div v-else class="text-gray-600 text-sm mb-4">Saved</div>
-      <button
-        @click="deleteProject"
-        class="bg-red-600 text-white px-4 py-2 rounded ml-4"
-      >
-        Delete Project
-      </button>
+      <button @click="deleteProject" class="bg-red-600 text-white px-4 py-2 rounded ml-4">Delete Project</button>
     </div>
-
 
     <button @click="addStage" class="bg-blue-700 text-white px-4 py-2 mb-4 rounded">+ Add Stage</button>
 
-    <div v-for="(stage, stageIndex) in stages" :key="stageIndex" class="mb-6 border p-4 rounded">
+    <div
+      v-for="(stage, stageIndex) in project.stages"
+      :key="stage.id"
+      class="mb-6 border p-4 rounded"
+    >
       <div class="flex justify-between items-center mb-2">
         <input
           v-model="stage.name"
-          @input="markDirty"
+          @input="debouncedSaveStageName(stage)"
           class="text-lg font-bold border px-2 py-1 rounded w-full max-w-xs"
         />
         <div class="space-x-2">
@@ -49,28 +47,27 @@
           </button>
         </div>
       </div>
-
       <div v-if="stage.products.length" class="space-y-3">
         <div
-          v-for="(item, productIndex) in stage.products"
-          :key="productIndex"
+          v-for="(item, productIndex) in sortedProducts(stage)"
+          :key="item.id"
           class="border rounded p-2 text-sm space-y-1"
         >
           <div class="flex justify-between items-center">
             <span class="font-medium">{{ item.name }}</span>
             <div class="space-x-2">
               <button
-                @click="moveProduct(stageIndex, productIndex, -1); markDirty()"
+                @click="moveProduct(stageIndex, productIndex, -1)"
                 :disabled="productIndex === 0"
                 class="text-xs text-gray-500 hover:text-black"
               >↑</button>
               <button
-                @click="moveProduct(stageIndex, productIndex, 1); markDirty()"
+                @click="moveProduct(stageIndex, productIndex, 1)"
                 :disabled="productIndex === stage.products.length - 1"
                 class="text-xs text-gray-500 hover:text-black"
               >↓</button>
               <button
-                @click="removeProductFromStage(stageIndex, productIndex)"
+                @click="removeProduct(stageIndex, productIndex)"
                 class="text-red-500 hover:text-red-700 text-xs"
               >
                 Remove
@@ -83,8 +80,7 @@
           <div class="flex items-center space-x-2 mt-1">
             <label class="text-xs">Quantity:</label>
             <input
-              v-model.number="stages[stageIndex].products[productIndex].quantity"
-              @input="markDirty"
+              v-model.number="item.quantity"
               type="number"
               min="0"
               class="border px-2 py-1 rounded w-20"
@@ -106,161 +102,166 @@
         </ul>
       </details>
 
-
-    </div>
-
-
-    <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-      <div class="bg-white w-[700px] h-[600px] p-6 rounded shadow-lg overflow-hidden">
-        <div class="flex justify-end mb-2">
-          <button @click="showModal = false" class="text-gray-500 hover:text-black text-xl font-bold">&times;</button>
-        </div>
-        <div class="space-y-4 h-full overflow-y-auto pr-2">
-          <!-- Product name filter -->
-          <div>
-            <label class="block text-sm font-medium mb-1">Product Name</label>
-            <input
-              v-model="productNameFilter"
-              type="text"
-              class="w-full border rounded px-2 py-1"
-              placeholder="Filter by product name"
-            />
-          </div>
-
-          <!-- Filter input group -->
-          <div class="flex items-end space-x-2">
-            <div class="flex-1">
-              <label class="block text-sm font-medium mb-1">Attribute Name</label>
-              <input
-                v-model="attributeNameInput"
-                type="text"
-                class="w-full border rounded px-2 py-1"
-                placeholder="Start typing..."
-                @input="filterAttributeNames"
-                list="attributeNameList"
-              />
-              <datalist id="attributeNameList">
-                <option
-                  v-for="attr in filteredAttributeNames"
-                  :key="attr"
-                  :value="attr"
-                />
-              </datalist>
-            </div>
-            <div class="flex-1">
-              <label class="block text-sm font-medium mb-1">Value</label>
-              <input
-                v-model="attributeValueInput"
-                type="text"
-                class="w-full border rounded px-2 py-1"
-                placeholder="Enter value"
-              />
-            </div>
-            <button
-              @click="addFilter"
-              class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-            >
-              + Add
-            </button>
-          </div>
-
-          <!-- Filtered attributes list -->
-          <div v-if="filters.length > 0" class="flex flex-wrap gap-2">
-            <div
-              v-for="(filter, index) in filters"
-              :key="index"
-              class="bg-gray-200 px-2 py-1 rounded flex items-center"
-            >
-              <span class="mr-2">{{ filter.name }}={{ filter.value }}</span>
-              <button
-                @click="removeFilter(index)"
-                class="text-red-500 hover:text-red-700 font-bold"
-              >
-                &times;
-              </button>
-            </div>
-          </div>
-
-          <!-- Filtered products list -->
-          <div class="pt-4">
-            <h2 class="text-lg font-semibold mb-2">Filtered Products</h2>
-            <div
-              v-for="(product, index) in filteredProducts"
-              :key="index"
-              class="border rounded p-2 mb-2 space-y-2"
-            >
-              <div class="font-medium">{{ product.name }}</div>
-              <ul class="text-sm text-gray-700 ml-4 list-disc">
-                <li v-for="(val, key) in product.attributes" :key="key">{{ key }}: {{ val }}</li>
-              </ul>
-              <div class="flex items-center space-x-2">
-                <input
-                  v-model.number="productQuantities[product.name]"
-                  type="number"
-                  min="0"
-                  class="border px-2 py-1 rounded w-24"
-                  placeholder="Quantity"
-                />
-                <button
-                  @click="selectProduct(product)"
-                  class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
     </div>
 
     <details class="mt-6 border-t pt-4">
       <summary class="cursor-pointer text-base text-green-700 font-semibold">Project Summary</summary>
-      <div class="flex justify-between items-center mt-2">
-        <ul class="text-sm list-disc ml-6 space-y-2">
-          <li v-for="(summary, index) in summarizeProject()" :key="index">
-            <div class="font-medium">{{ summary.name }} – Quantity: {{ summary.quantity }}</div>
-            <ul class="ml-4 text-gray-600 list-disc">
-              <li v-for="(val, key) in summary.attributes" :key="key">{{ key }}: {{ val }}</li>
-            </ul>
-          </li>
-        </ul>
-        <button
-          @click="exportSummaryToCSV"
-          class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-sm"
-        >
-          ⬇ Export CSV
-        </button>
-      </div>
+      <ul class="mt-2 text-sm list-disc ml-6 space-y-2">
+        <li v-for="(summary, index) in summarizeProject()" :key="index">
+          <div class="font-medium">{{ summary.name }} – Quantity: {{ summary.quantity }}</div>
+          <ul class="ml-4 text-gray-600 list-disc">
+            <li v-for="(val, key) in summary.attributes" :key="key">{{ key }}: {{ val }}</li>
+          </ul>
+        </li>
+      </ul>
     </details>
 
+    <!-- Modal -->
+
+    <ProductSelectModal
+      v-if="showModal"
+      :products="products"
+      :attribute-names="availableAttributes"
+      @close="showModal = false"
+      @select="handleProductSelect"
+    />
+
+
+    <!--    <div v-if="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">-->
+<!--      <div class="bg-white w-[500px] p-6 rounded shadow-lg">-->
+<!--        <h2 class="text-lg font-semibold mb-4">[Mock] Add Product</h2>-->
+<!--        <button-->
+<!--          @click="selectMockProduct"-->
+<!--          class="bg-green-600 text-white px-4 py-2 rounded"-->
+<!--        >-->
+<!--          Add Mock Product-->
+<!--        </button>-->
+<!--        <button @click="showModal = false" class="ml-4 px-4 py-2 border rounded">Close</button>-->
+<!--      </div>-->
+<!--    </div>-->
   </div>
+  <div v-else>Nie mamy pańskiego płaszcza i co nam pan zrobi?</div>
 </template>
 
 <script setup>
-import {ref, computed, onMounted} from 'vue'
-import {getProjectDetails, updateProject} from "@/integrations/projects/services.js";
-import {useRoute} from "vue-router";
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import {getProjectDetails, updateProject, updateStage} from '@/integrations/projects/services'
+import ProductSelectModal from "@/components/ProductSelectModal.vue";
 
+const route = useRoute()
+const project = ref(null)
+const isDirty = ref(false)
 const showModal = ref(false)
 const currentStageIndex = ref(null)
-const projectName = ref('My Project')
-const isDirty = ref(false)
+let saveTimer = null
+const stageSaveTimers = new Map()
 
-const project = ref()
-
-let autoSaveTimer = null
-
-const expandedStages = ref(new Set())
-
-const toggleStage = (index) => {
-  if (expandedStages.value.has(index)) {
-    expandedStages.value.delete(index)
-  } else {
-    expandedStages.value.add(index)
+const products = ref([
+  {
+    id: 'p1',
+    name: 'Brick A',
+    attributes: { color: 'red', size: 'small' }
+  },
+  {
+    id: 'p2',
+    name: 'Cement B',
+    attributes: { material: 'portland' }
   }
+])
+
+const availableAttributes = ref([
+  'color', 'size', 'material', 'brand', 'length'
+])
+
+
+onMounted(async () => {
+  const id = route.params.id
+  project.value = await getProjectDetails(id)
+})
+
+const sortedProducts = (stage) => {
+  return [...stage.products].sort((a, b) => a.position - b.position)
+}
+
+const debouncedSaveName = () => {
+  if (!project.value) return
+  if (saveTimer) clearTimeout(saveTimer)
+  isDirty.value = true
+  saveTimer = setTimeout(async () => {
+    try {
+      await updateProject(project.value.id, project.value.name)
+    } catch (err) {
+      console.error('Failed to update project:', err.message)
+    } finally {
+      isDirty.value = false
+    }
+  }, 1000)
+}
+
+const debouncedSaveStageName = (stage) => {
+  const stageId = stage.id
+  if (stageSaveTimers.has(stageId)) clearTimeout(stageSaveTimers.get(stageId))
+
+  isDirty.value = true
+
+  const timer = setTimeout(async () => {
+    try {
+      await updateStage(project.value.id, stage)
+    } catch (err) {
+      console.error(`Failed to update stage ${stageId}:`, err.message)
+    } finally {
+      isDirty.value = false
+      stageSaveTimers.delete(stageId)
+    }
+  }, 1000)
+  stageSaveTimers.set(stageId, timer)
+}
+
+const deleteProject = () => {
+  console.log('Project deleted:', project.value.id)
+}
+
+const addStage = () => {
+  project.value.stages.push({
+    id: crypto.randomUUID(),
+    name: `Stage ${project.value.stages.length + 1}`,
+    products: []
+  })
+}
+
+const removeStage = (index) => {
+  project.value.stages.splice(index, 1)
+}
+
+const openModalForStage = (index) => {
+  currentStageIndex.value = index
+  showModal.value = true
+}
+
+const selectMockProduct = () => {
+  const stage = project.value.stages[currentStageIndex.value]
+  stage.products.push({
+    id: crypto.randomUUID(),
+    name: 'Mock Product',
+    quantity: 1,
+    position: stage.products.length,
+    attributes: { color: 'red', size: 'M' }
+  })
+  showModal.value = false
+}
+
+const removeProduct = (stageIndex, productIndex) => {
+  project.value.stages[stageIndex].products.splice(productIndex, 1)
+}
+
+const moveProduct = (stageIndex, productIndex, direction) => {
+  const list = project.value.stages[stageIndex].products
+  const target = productIndex + direction
+  if (target < 0 || target >= list.length) return
+  const temp = list[productIndex]
+  list[productIndex] = list[target]
+  list[target] = temp
 }
 
 const summarizeStage = (stage) => {
@@ -281,15 +282,11 @@ const summarizeStage = (stage) => {
 
 const summarizeProject = () => {
   const map = new Map()
-  for (const stage of stages.value) {
+  for (const stage of project.value.stages) {
     for (const item of stage.products) {
       const key = item.name + JSON.stringify(item.attributes)
       if (!map.has(key)) {
-        map.set(key, {
-          name: item.name,
-          attributes: item.attributes,
-          quantity: 0
-        })
+        map.set(key, { name: item.name, attributes: item.attributes, quantity: 0 })
       }
       map.get(key).quantity += item.quantity
     }
@@ -297,152 +294,15 @@ const summarizeProject = () => {
   return Array.from(map.values())
 }
 
-
-const scheduleAutoSave = () => {
-  if (autoSaveTimer) clearTimeout(autoSaveTimer)
-  isDirty.value = true
-  autoSaveTimer = setTimeout(() => {
-    console.log('Auto-saved project')
-    isDirty.value = false
-    autoSaveTimer = null
-  }, 3000)
-}
-
-const markDirty = () => {
-  isDirty.value = true
-  console.log('Auto-saved project')
-  scheduleAutoSave()
-
-}
-
-const changeName = async () => {
-  const id = useRoute().params.id
-  await updateProject(id, projectName.value)
-  markDirty()
-}
-
-const deleteProject = () => {
-  console.log('Project deleted:', projectName.value)
-}
-
-const stages = ref([
-  { name: 'Stage 1', products: [] },
-  { name: 'Stage 2', products: [] },
-  { name: 'Stage 3', products: [] },
-])
-
-const addStage = () => {
-  stages.value.push({ name: `Stage ${stages.value.length + 1}`, products: [] })
-  markDirty()
-}
-
-const removeStage = (index) => {
-  stages.value.splice(index, 1)
-  markDirty()
-}
-
-const moveProduct = (stageIndex, productIndex, direction) => {
-  const products = stages.value[stageIndex].products
-  const targetIndex = productIndex + direction
-  if (targetIndex < 0 || targetIndex >= products.length) return
-  const temp = products[productIndex]
-  products[productIndex] = products[targetIndex]
-  products[targetIndex] = temp
-  markDirty()
-}
-
-
-const availableAttributes = ref([
-  'color',
-  'size',
-  'weight',
-  'material',
-  'brand',
-  'length',
-])
-
-const products = ref([
-  {
-    name: 'Brick A',
-    attributes: { color: 'red', size: 'small', weight: '1kg' },
-  },
-  {
-    name: 'Cement B',
-    attributes: { material: 'portland', weight: '25kg' },
-  },
-  {
-    name: 'Steel Rod',
-    attributes: { length: '2m', material: 'steel', brand: 'XBrand' },
-  },
-])
-
-const attributeNameInput = ref('')
-const attributeValueInput = ref('')
-const productNameFilter = ref('')
-const filters = ref([])
-const productQuantities = ref({})
-
-const filteredAttributeNames = computed(() => {
-  return availableAttributes.value.filter(attr =>
-    attr.toLowerCase().includes(attributeNameInput.value.toLowerCase())
-  )
-})
-
-const filteredProducts = computed(() => {
-  return products.value.filter(product => {
-    const matchesName = product.name.toLowerCase().includes(productNameFilter.value.toLowerCase())
-    const matchesAttributes = filters.value.every(f =>
-      product.attributes[f.name]?.toLowerCase() === f.value.toLowerCase()
-    )
-    return matchesName && matchesAttributes
+const handleProductSelect = ({ product, quantity }) => {
+  const stage = project.value.stages[currentStageIndex.value]
+  stage.products.push({
+    id: product.id,
+    name: product.name,
+    quantity,
+    position: stage.products.length,
+    attributes: product.attributes
   })
-})
-
-function addFilter() {
-  if (!attributeNameInput.value || !attributeValueInput.value) return
-  filters.value.push({
-    name: attributeNameInput.value,
-    value: attributeValueInput.value,
-  })
-  attributeNameInput.value = ''
-  attributeValueInput.value = ''
-}
-
-function removeFilter(index) {
-  filters.value.splice(index, 1)
-}
-
-function openModalForStage(index) {
-  currentStageIndex.value = index
-  showModal.value = true
-}
-
-function selectProduct(product) {
-  const quantity = productQuantities.value[product.name] || 0
-  if (currentStageIndex.value !== null) {
-    stages.value[currentStageIndex.value].products.push({ product, quantity })
-  }
   showModal.value = false
-  markDirty()
 }
-
-function removeProductFromStage(stageIndex, productIndex) {
-  stages.value[stageIndex].products.splice(productIndex, 1)
-  markDirty()
-}
-
-
-onMounted(async () => {
-  const id = useRoute().params.id
-  let projectDetails = await getProjectDetails(id)
-  project.value = projectDetails
-  projectName.value = projectDetails.name
-  stages.value = projectDetails.stages
-})
-
-
-
 </script>
-
-<style scoped>
-</style>

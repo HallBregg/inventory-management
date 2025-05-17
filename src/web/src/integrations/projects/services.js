@@ -50,3 +50,19 @@ export const getProjectDetails = async (id) => {
 export const updateProject = async (id, name) => {
     const res = await api.put(`/${id}`, {name: name})
 }
+
+
+export const updateStage = async (projectId, stage) => {
+    const body = {
+        name: stage.name,
+        products: stage.products.map((p) => ({
+            productId: p.id,
+            quantity: p.quantity,
+            position: p.position,
+        }))
+    }
+    const response = await api.put(
+        `/${projectId}/stages/${stage.id}`,
+        body
+    )
+}
