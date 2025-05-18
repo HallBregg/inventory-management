@@ -5,16 +5,13 @@ import jakarta.persistence.*;
 import my.group.productscounter.BaseEntity;
 import my.group.productscounter.project.dto.StageProductDto;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.*;
 
 
 @Entity
 class Stage extends BaseEntity {
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Project project;
 
     @Column(nullable = false)
@@ -25,6 +22,7 @@ class Stage extends BaseEntity {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @OrderBy("position.value")
     private final List<StageProduct> products = new ArrayList<>();
 
     protected Stage() {
@@ -43,28 +41,27 @@ class Stage extends BaseEntity {
         return products;
     }
 
-
-    void replaceProducts(List<StageProductDto> specs) {
-        Map<Position, StageProduct> map = products
-                .stream()
-                .collect(Collectors.toMap(
-                        StageProduct::getPosition,
-                        stageProduct -> stageProduct));
-
-        List<StageProduct> ordered = new ArrayList<>(specs.size());
-        for (StageProductDto stageProductDto : specs) {
-            Position position = new Position(stageProductDto.position());
-            StageProduct product = map.remove(position);
-            if (product != null) {
-                product.setQuantity(stageProductDto.quantity());
-            } else {
-                product = new StageProduct(this, stageProductDto.productId(), stageProductDto.quantity(), position);
+    public void replaceProducts(List<StageProductDto> specs) {
+        // 1) validate unique positions
+        Set<Position> seen = new HashSet<>();
+        for (StageProductDto spec : specs) {
+            Position pos = new Position(spec.position());
+            if (!seen.add(pos)) {
+                throw new IllegalStateException("Duplicate position: " + pos.getValue());
             }
-            ordered.add(product);
         }
-        map.values().forEach(products::remove);
-        products.clear();
-        products.addAll(ordered);
+
+        // 2) clear old
+        products.clear();  // orphanRemoval deletes them
+
+        // 3) add new ones
+        for (StageProductDto spec : specs) {
+            Position pos = new Position(spec.position());
+            products.add(new StageProduct(this,
+                    spec.productId(),
+                    pos,
+                    spec.quantity()));
+        }
     }
 
     void setName(String name) {

@@ -17,7 +17,7 @@ interface ProjectQueryRepository extends Repository<Project, Long> {
                      p.name                 AS projectName,
                      s.id                   AS stageId,
                      s.name                 AS stageName,
-                     sp.id.position.value         AS productPosition,
+                     sp.position.value         AS productPosition,
                      sp.quantity            AS productQuantity,
                      sp.productId           AS productId,
                      prod.name              AS productName,
