@@ -249,14 +249,40 @@ const removeProduct = (stageIndex, productIndex) => {
   project.value.stages[stageIndex].products.splice(productIndex, 1)
 }
 
-const moveProduct = (stageIndex, productIndex, direction) => {
-  const list = project.value.stages[stageIndex].products
-  const target = productIndex + direction
-  if (target < 0 || target >= list.length) return
-  const temp = list[productIndex]
-  list[productIndex] = list[target]
-  list[target] = temp
+const moveProduct = async (stageIndex, productIndex, direction) => {
+  const stage = project.value.stages[stageIndex]
+
+  // Make a copy sorted by position
+  const sorted = [...stage.products].sort((a, b) => a.position - b.position)
+  const targetIndex = productIndex + direction
+
+  if (targetIndex < 0 || targetIndex >= sorted.length) return
+
+  // Swap positions
+  const from = sorted[productIndex]
+  const to = sorted[targetIndex]
+  const temp = from.position
+  from.position = to.position
+  to.position = temp
+
+  // Reassign sorted (modified) list back to stage.products
+  stage.products = sorted
+
+  try {
+    await updateStage(project.value.id, stage)
+  } catch (err) {
+    console.error('Failed to update product order:', err.message)
+  }
 }
+
+// const moveProduct = (stageIndex, productIndex, direction) => {
+//   const list = project.value.stages[stageIndex].products
+//   const target = productIndex + direction
+//   if (target < 0 || target >= list.length) return
+//   const temp = list[productIndex]
+//   list[productIndex] = list[target]
+//   list[target] = temp
+// }
 
 const summarizeStage = (stage) => {
   const map = new Map()
