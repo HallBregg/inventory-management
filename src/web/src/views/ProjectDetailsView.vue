@@ -313,11 +313,12 @@ const summarizeProject = () => {
 
 const handleProductSelect = ({ product, quantity }) => {
   const stage = project.value.stages[currentStageIndex.value]
+
   stage.products.push({
     id: product.id,
     name: product.name,
     quantity,
-    position: stage.products.length,
+    position: stage.products.length + 1,
     attributes: product.attributes
   })
   updateStageHandler(stage)

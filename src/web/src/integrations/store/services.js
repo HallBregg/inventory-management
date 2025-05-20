@@ -16,3 +16,8 @@ export const getAllProperties = async () => {
     const response = await api.get('/properties');
     return response.data;
 }
+
+
+export const createProduct = async (name, attributes) => {
+    const response = await api.post('', {name: name, properties: Object.entries(attributes).map(([name, value]) => ({ name, value }))})
+}

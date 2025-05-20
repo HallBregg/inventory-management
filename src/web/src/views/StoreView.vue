@@ -86,8 +86,9 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import {ref, computed, onMounted} from 'vue'
 import ProductModal from '@/components/ProductModal.vue'
+import {createProduct, getProducts} from "@/integrations/store/services.js";
 
 const products = ref([
   { id: 1, name: 'Cement A', attributes: { Type: 'Portland', Grade: '43' } },
@@ -102,6 +103,10 @@ const filterName = ref('')
 const filterAttributes = ref([]) // array of { key, value }
 const attrKey = ref('')
 const attrValue = ref('')
+
+onMounted(async () => {
+  products.value = await getProducts();
+})
 
 const allAttributeNames = computed(() => {
   const keys = new Set()
@@ -146,13 +151,15 @@ const openEditModal = (product) => {
   showModal.value = true
 }
 
-const handleSubmit = (newProduct) => {
+const handleSubmit = async (newProduct) => {
   if (modalMode.value === 'edit') {
     const index = products.value.findIndex(p => p.id === selectedProduct.value.id)
     if (index !== -1) products.value[index] = { ...selectedProduct.value, ...newProduct }
   } else {
-    const newId = Math.max(...products.value.map(p => p.id), 0) + 1
-    products.value.push({ id: newId, ...newProduct })
+    await createProduct(newProduct.name, newProduct.attributes)
+    products.value = await getProducts();
+    // const newId = Math.max(...products.value.map(p => p.id), 0) + 1
+    // products.value.push({ id: newId, ...newProduct })
   }
   showModal.value = false
 }
