@@ -89,7 +89,7 @@
             <label class="text-xs">Quantity:</label>
             <input
               v-model.number="item.quantity"
-              @input="handleProductQuantityChange(item)"
+              @input="handleProductQuantityChange(item, stage)"
               type="number"
               min="0"
               class="border px-2 py-1 rounded w-20"
@@ -204,7 +204,7 @@ const debouncedSaveName = () => {
   }, 1000)
 }
 
-const debouncedSaveStageName = (stage) => {
+const updateStageHandler = (stage) => {
   const stageId = stage.id
   if (stageSaveTimers.has(stageId)) clearTimeout(stageSaveTimers.get(stageId))
 
@@ -222,6 +222,8 @@ const debouncedSaveStageName = (stage) => {
   }, 1000)
   stageSaveTimers.set(stageId, timer)
 }
+
+const debouncedSaveStageName = (stage) => { updateStageHandler(stage); }
 
 const deleteProject = () => {
   console.log('Project deleted:', project.value.id)
@@ -277,11 +279,7 @@ const moveProduct = async (stageIndex, productIndex, direction) => {
   // Reassign sorted (modified) list back to stage.products
   stage.products = sorted
 
-  try {
-    await updateStage(project.value.id, stage)
-  } catch (err) {
-    console.error('Failed to update product order:', err.message)
-  }
+  updateStageHandler(stage);
 }
 
 const summarizeStage = (stage) => {
@@ -326,7 +324,8 @@ const handleProductSelect = ({ product, quantity }) => {
   showModal.value = false
 }
 
-const handleProductQuantityChange = (product) => {
+const handleProductQuantityChange = (product, stage) => {
   console.log(`Changed quantity name of product: ${product.name} ${product.quantity}`)
+  updateStageHandler(stage);
 }
 </script>
