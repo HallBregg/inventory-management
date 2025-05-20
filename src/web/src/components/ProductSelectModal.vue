@@ -85,14 +85,22 @@ const addFilter = () => {
 const removeFilter = (i) => filters.value.splice(i, 1)
 
 const filteredProducts = computed(() => {
-  return props.products.filter(p => {
+  const result = props.products.filter(p => {
     const nameMatch = p.name.toLowerCase().includes(productNameFilter.value.toLowerCase())
     const attrMatch = filters.value.every(f =>
       p.attributes[f.name]?.toLowerCase() === f.value.toLowerCase()
     )
     return nameMatch && attrMatch
   })
+
+  result.forEach(product => {
+    if (productQuantities.value[product.id] == null) {
+      productQuantities.value[product.id] = 1
+    }
+  })
+  return result
 })
+
 
 const emitAdd = (product) => {
   const quantity = productQuantities.value[product.id] || 0

@@ -22,7 +22,7 @@
         Saving...
       </div>
       <div v-else class="text-gray-600 text-sm mb-4">Saved</div>
-      <button @click="deleteProject" class="bg-red-600 text-white px-4 py-2 rounded ml-4">Delete Project</button>
+      <button @click="deleteProjectHandler" class="bg-red-600 text-white px-4 py-2 rounded ml-4">Delete Project</button>
     </div>
 
     <button @click="showAddStageModal = true" class="bg-blue-700 text-white px-4 py-2 mb-4 rounded">
@@ -134,9 +134,7 @@
       @close="showModal = false"
       @select="handleProductSelect"
     />
-
   </div>
-
   <div v-else class="text-gray-800 text-sm mb-4 flex items-center gap-2">
     <svg class="animate-spin h-4 w-4 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -144,17 +142,25 @@
     </svg>
     <span>Nie mamy pańskiego płaszcza i co nam pan zrobi?</span>
   </div>
-
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
-import {createStage, deleteStage, getProjectDetails, updateProject, updateStage} from '@/integrations/projects/services'
+import {useRoute, useRouter} from 'vue-router'
+import {
+  createStage,
+  deleteProject,
+  deleteStage,
+  getProjectDetails,
+  updateProject,
+  updateStage
+} from '@/integrations/projects/services'
 import ProductSelectModal from "@/components/ProductSelectModal.vue";
 import AddStageModal from "@/components/AddStageModal.vue";
+import {getAllProperties, getProducts} from "@/integrations/store/services.js";
 
 const route = useRoute()
+const router = useRouter();
 const project = ref(null)
 const isDirty = ref(false)
 const showModal = ref(false)
@@ -163,26 +169,16 @@ let saveTimer = null
 const stageSaveTimers = new Map()
 const showAddStageModal = ref(false)
 
-const products = ref([
-  {
-    id: 'p1',
-    name: 'Brick A',
-    attributes: { color: 'red', size: 'small' }
-  },
-  {
-    id: 'p2',
-    name: 'Cement B',
-    attributes: { material: 'portland' }
-  }
-])
-const availableAttributes = ref([
-  'color', 'size', 'material', 'brand', 'length'
-])
+const products = ref([])
+const availableAttributes = ref([])
 
 
 onMounted(async () => {
   const id = route.params.id
   project.value = await getProjectDetails(id)
+
+  products.value = await getProducts();
+  availableAttributes.value = await getAllProperties();
 })
 
 const sortedProducts = (stage) => {
@@ -225,8 +221,9 @@ const updateStageHandler = (stage) => {
 
 const debouncedSaveStageName = (stage) => { updateStageHandler(stage); }
 
-const deleteProject = () => {
-  console.log('Project deleted:', project.value.id)
+const deleteProjectHandler = async () => {
+  await deleteProject(project.value.id)
+  router.push({name: "projectListView"})
 }
 
 const handleCreateStage = async (name) => {
@@ -257,7 +254,9 @@ const openModalForStage = (index) => {
 }
 
 const removeProduct = (stageIndex, productIndex) => {
-  project.value.stages[stageIndex].products.splice(productIndex, 1)
+  const stage = project.value.stages[stageIndex];
+  stage.products.splice(productIndex, 1)
+  updateStageHandler(stage)
 }
 
 const moveProduct = async (stageIndex, productIndex, direction) => {
@@ -321,11 +320,11 @@ const handleProductSelect = ({ product, quantity }) => {
     position: stage.products.length,
     attributes: product.attributes
   })
+  updateStageHandler(stage)
   showModal.value = false
 }
 
 const handleProductQuantityChange = (product, stage) => {
-  console.log(`Changed quantity name of product: ${product.name} ${product.quantity}`)
   updateStageHandler(stage);
 }
 </script>
