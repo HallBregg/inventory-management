@@ -88,7 +88,6 @@ public class ProjectService {
     StageDto createStage(CreateStageDto command) {
         Project project = projectRepository.findById(command.projectId()).orElseThrow(ProjectNotFoundException::new);
         Stage stage = project.addStage(command.name());
-        projectRepository.save(project);
         projectRepository.flush();
         return StageToDtoMapper.of(stage);
     }
