@@ -89,6 +89,7 @@
             <label class="text-xs">Quantity:</label>
             <input
               v-model.number="item.quantity"
+              @input="handleProductQuantityChange(item)"
               type="number"
               min="0"
               class="border px-2 py-1 rounded w-20"
@@ -135,7 +136,15 @@
     />
 
   </div>
-  <div v-else>Nie mamy pańskiego płaszcza i co nam pan zrobi?</div>
+
+  <div v-else class="text-gray-800 text-sm mb-4 flex items-center gap-2">
+    <svg class="animate-spin h-4 w-4 text-gray-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16 8 8 0 01-8-8z"></path>
+    </svg>
+    <span>Nie mamy pańskiego płaszcza i co nam pan zrobi?</span>
+  </div>
+
 </template>
 
 <script setup>
@@ -275,15 +284,6 @@ const moveProduct = async (stageIndex, productIndex, direction) => {
   }
 }
 
-// const moveProduct = (stageIndex, productIndex, direction) => {
-//   const list = project.value.stages[stageIndex].products
-//   const target = productIndex + direction
-//   if (target < 0 || target >= list.length) return
-//   const temp = list[productIndex]
-//   list[productIndex] = list[target]
-//   list[target] = temp
-// }
-
 const summarizeStage = (stage) => {
   const map = new Map()
   for (const item of stage.products) {
@@ -324,5 +324,9 @@ const handleProductSelect = ({ product, quantity }) => {
     attributes: product.attributes
   })
   showModal.value = false
+}
+
+const handleProductQuantityChange = (product) => {
+  console.log(`Changed quantity name of product: ${product.name} ${product.quantity}`)
 }
 </script>
