@@ -5,6 +5,7 @@ import my.group.productscounter.store.dto.CreateProductDto;
 import my.group.productscounter.store.dto.ProductDto;
 import my.group.productscounter.store.dto.PropertyDto;
 import my.group.productscounter.store.dto.UpdateProductDto;
+import my.group.productscounter.store.exception.ProductCouldNotBeCreatedException;
 import my.group.productscounter.store.exception.ProductNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,8 @@ class ProductToDtoMapper {
     };
 }
 
+
+//@Validated
 @Service
 public class ProductStoreService {
     private final ProductRepository productRepository;
@@ -36,13 +39,16 @@ public class ProductStoreService {
         this.productRepository = productRepository;
     }
 
+    @Transactional
     ProductDto create(CreateProductDto command) {
-        Product product = new Product();
-        product.setName(command.name());
-        command.properties().forEach(property -> {
-            product.addProperty(new Property(property.name(), property.value()));
-        });
-        return ProductToDtoMapper.of(productRepository.save(product));
+        Product product;
+        try{
+            product = new Product(command.name());
+            command.properties().forEach(property -> {product.addProperty(property.name(), property.value());});
+        } catch (Exception exc) {
+            throw new ProductCouldNotBeCreatedException(exc);
+        }
+        return ProductToDtoMapper.of(product);
     }
 
     void delete(Long id) {
@@ -61,9 +67,7 @@ public class ProductStoreService {
 
         if (command.properties() != null) {
             product.getProperties().clear();
-            command.properties().forEach(property -> {
-                product.addProperty(new Property(property.name(), property.value()));
-            });
+            command.properties().forEach(property -> {product.addProperty(property.name(), property.value());});
         }
         return ProductToDtoMapper.of(product);
     }

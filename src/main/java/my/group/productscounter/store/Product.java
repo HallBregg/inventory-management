@@ -1,6 +1,7 @@
 package my.group.productscounter.store;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,16 +13,16 @@ class Product {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank
     private String name;
 
     @ElementCollection
     private final Set<Property> properties = new HashSet<>();
 
-    protected Product() {
-    }
+    protected Product() {}  // JPA requirement
 
-    void addProperty(Property property) {
-        this.properties.add(property);
+    Product(String name){
+        setName(name);
     }
 
     void addProperty(String name, String value) {
@@ -29,6 +30,7 @@ class Product {
     }
 
     void setName(String name) {
+        if (name == null || name.isBlank()) throw new IllegalArgumentException("Product name must not be blank.");
         this.name = name;
     }
 
