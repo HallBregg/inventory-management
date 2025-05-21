@@ -12,16 +12,16 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 record ErrorResponse(String code, String message) {
 }
 
-@ControllerAdvice(assignableTypes = ProjectController.class)
-class ProjectControllerExceptionHandler {
-
-    @ExceptionHandler(ProjectNotFoundException.class)
-    ResponseEntity<Object> handleProjectNotFoundException(ProjectNotFoundException ex) {
-        return new ResponseEntity<>(new ErrorResponse(ex.getCode(), "Project Not Found"), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    MethodArgumentNotValidException handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        return ex;
-    }
-}
+//@ControllerAdvice(assignableTypes = ProjectController.class)
+//class ProjectControllerExceptionHandler {
+//
+//    @ExceptionHandler(ProjectNotFoundException.class)
+//    ResponseEntity<Object> handleProjectNotFoundException(ProjectNotFoundException ex) {
+//        return new ResponseEntity<>(new ErrorResponse(ex.getCode(), "Project Not Found"), HttpStatus.NOT_FOUND);
+//    }
+//
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    MethodArgumentNotValidException handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+//        return ex;
+//    }
+//}
