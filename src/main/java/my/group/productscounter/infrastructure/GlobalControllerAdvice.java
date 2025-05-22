@@ -2,9 +2,8 @@ package my.group.productscounter.infrastructure;
 
 
 import jakarta.servlet.http.HttpServletRequest;
-import my.group.productscounter.store.dto.ErrorResponse;
-import my.group.productscounter.store.exception.ProductCouldNotBeCreatedException;
-import my.group.productscounter.store.exception.ProductNotFoundException;
+import my.group.productscounter.project.exception.ProjectServiceException;
+import my.group.productscounter.store.exception.ProductStoreServiceException;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -35,19 +34,18 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 class GlobalControllerAdvice {
 
-    @ExceptionHandler(ProductCouldNotBeCreatedException.class)
-    ResponseEntity<Object> handleProductCouldNotBeCreatedException(ProductCouldNotBeCreatedException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+
+    @ExceptionHandler(ProjectServiceException.class)
+    ResponseEntity<ErrorResponse> onProjectServiceException(ProjectServiceException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResponse(ex.getCode(), ex.getMessage(), null));
     }
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ErrorResponse(ex.getCode(), ex.getMessage(), null));
+    @ExceptionHandler(ProductStoreServiceException.class)
+    ResponseEntity<ErrorResponse> onProductStoreServiceException(ProductStoreServiceException ex) {
+        return ResponseEntity.badRequest().body(new ErrorResponse(ex.getCode(), ex.getMessage(), null));
     }
 
-
+    // 1. Resource is not found 404
     @ExceptionHandler(NoResourceFoundException.class)
     ResponseEntity<ErrorResponse> onNoResourceFoundException(NoResourceFoundException exc, HttpServletRequest request){
         return ResponseEntity
@@ -55,12 +53,12 @@ class GlobalControllerAdvice {
                 .body(new ErrorResponse(
                         "NOT_FOUND",
                         String.format("No handler found for %s %s", request.getMethod(), request.getRequestURI()),
-                        null));
-    };
+                        exc.getMessage()));
+    }
 
 //     2. JPA / DataIntegrity violations (constraint errors).
-//     DB error are difficult to handle from Transactional annotation in Service layer.
-//     Maybe it would be a good idea to somehow catch them on service layer.
+//     DB errors are challenging to handle from Transactional annotation in the Service layer.
+//     Maybe it would be a good idea to somehow catch them on the service layer.
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> onDataIntegrityViolationException(DataIntegrityViolationException exc) {
         String details = exc.getRootCause() != null
@@ -76,7 +74,7 @@ class GlobalControllerAdvice {
                 ));
     }
 
-    // 4. Method not supported
+    // 4. Method isn't supported
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> onHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException exc) {
         return ResponseEntity
@@ -88,7 +86,7 @@ class GlobalControllerAdvice {
                 ));
     }
 
-    // 5. Media type not supported
+    // 5. Media type isn't supported
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ErrorResponse> onHttpMediaTypeNotSupportedException(HttpMediaTypeNotSupportedException exc) {
         return ResponseEntity
@@ -100,7 +98,7 @@ class GlobalControllerAdvice {
                 ));
     }
 
-    // 6. Media type not acceptable
+    // 6. Media type is not acceptable
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
     public ResponseEntity<ErrorResponse> onHttpMediaTypeNotAcceptableException(HttpMediaTypeNotAcceptableException ex) {
         return ResponseEntity

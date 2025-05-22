@@ -1,6 +1,6 @@
-package my.group.productscounter.store.dto;
+package my.group.productscounter.infrastructure;
 
-public record ErrorResponse(
+record ErrorResponse(
         String code,
         String message,
         Object details) {
