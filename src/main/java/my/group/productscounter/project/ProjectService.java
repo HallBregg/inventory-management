@@ -1,11 +1,15 @@
 package my.group.productscounter.project;
 
+import jakarta.persistence.PersistenceException;
 import jakarta.transaction.Transactional;
 import my.group.productscounter.project.dto.*;
 import my.group.productscounter.project.exception.ProductNotFoundException;
+import my.group.productscounter.project.exception.ProjectCreateException;
 import my.group.productscounter.project.exception.ProjectNotFoundException;
 import my.group.productscounter.project.exception.ProjectStageUpdateException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -67,6 +71,11 @@ public class ProjectService {
     @Transactional
     public ProjectIdentifierDto createProject(CreateProjectDto command) {
         Project project = projectRepository.save(new Project(command.name()));
+
+        try{
+            projectRepository.flush();
+        } catch (DataAccessException exc){ throw new ProjectCreateException(exc); }
+
         return new ProjectIdentifierDto(project.getId(), project.getName());
     }
 
