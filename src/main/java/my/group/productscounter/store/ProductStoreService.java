@@ -79,7 +79,9 @@ public class ProductStoreService {
     }
 
     List<ProductDto> findAll() {
-        return productRepository.findAll().stream().map(ProductToDtoMapper::of).toList();
+        throw new ProductNotFoundException();
+//        return productRepository.findAll().stream().map(ProductToDtoMapper::of).toList();
+
     }
 
     List<String> listAllPropertyNames() {
