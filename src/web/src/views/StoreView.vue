@@ -1,5 +1,9 @@
 <template>
 
+  <div class="section">
+
+
+  <!--  Error message-->
   <div
     v-if="errorAlert"
     role="alert"
@@ -34,48 +38,59 @@
   <div class="p-6 space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Product Store</h1>
-      <button @click="openAddModal" class="bg-blue-600 text-white px-4 py-2 rounded">+ Add Product</button>
+      <h1 class="text-title">Product Store</h1>
+      <button @click="openAddModal" class="btn-standard">+ Add Product</button>
     </div>
 
     <!-- Filters -->
-    <div class="border p-4 rounded mb-4 space-y-4">
-      <h2 class="font-semibold">Filter Products</h2>
-
-      <input
-        v-model="filterName"
-        placeholder="Search by name"
-        class="border px-3 py-1 rounded w-full"
-      />
-
+    <div class="rounded mb-4 space-y-4">
+      <h2 class="text">Filter Products</h2>
       <div class="flex items-center gap-2">
+        <input
+          v-model="filterName"
+          placeholder="Search by name"
+          class="border px-3 py-1 rounded w-1/4"
+        />
         <input
           v-model="attrKey"
           list="attrNames"
           placeholder="Attribute"
-          class="border px-2 py-1 rounded w-1/3"
+          class="border px-2 py-1 rounded w-1/4"
         />
         <input
           v-model="attrValue"
           placeholder="Value"
-          class="border px-2 py-1 rounded w-1/2"
+          class="border px-2 py-1 rounded w-1/4"
         />
-        <button @click="addFilterAttribute" class="text-green-600 text-sm">+ Add</button>
+        <button @click="addFilterAttribute" class="text-green-600 text-sm hover-scale px-3 py-2 border border-current  rounded-sm">+ Add</button>
       </div>
 
       <datalist id="attrNames">
         <option v-for="name in allAttributeNames" :key="name">{{ name }}</option>
       </datalist>
-
       <div class="flex flex-wrap gap-2">
         <span
           v-for="(filter, index) in filterAttributes"
           :key="index"
-          class="bg-blue-100 text-sm px-2 py-1 rounded-full flex items-center gap-2"
-        >
-          {{ filter.key }}={{ filter.value }}
-          <button @click="removeFilterAttribute(index)" class="text-red-600 text-xs">✕</button>
-        </span>
+          class="inline-flex items-center justify-center rounded-full border border-blue-500 px-2.5 py-0.5 text-blue-600">
+        <p class="text-sm whitespace-nowrap">{{ filter.key }}: {{ filter.value }}</p>
+
+        <button
+          @click="removeFilterAttribute(index)"
+          class="ms-1.5 -me-1 inline-block rounded-full bg-blue-200 p-0.5 text-blue-700 transition hover:bg-blue-300">
+          <span class="sr-only">Remove badge</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-3"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </span>
       </div>
     </div>
 
@@ -87,19 +102,23 @@
         class="border rounded p-4 space-y-2"
       >
         <div class="flex justify-between items-center">
-          <span class="font-semibold">{{ product.name }}</span>
+          <div>
+            <span class="font-semibold">{{ product.name }}</span>
+            <div class="text-xs text-gray-500">ID: {{ product.id }}</div>
+          </div>
           <div class="space-x-2">
-            <button @click="openEditModal(product)" class="text-blue-600 text-sm">Edit</button>
-            <button @click="deleteProduct(product.id)" class="text-red-600 text-sm">Delete</button>
+            <button @click="openEditModal(product)" class="text-blue-600 text-sm hover-scale hover:underline">Edit</button>
+            <button @click="deleteProduct(product.id)" class="text-red-600 text-sm hover-scale hover:underline">Delete</button>
           </div>
         </div>
+
         <div class="flex flex-wrap gap-2 text-sm">
+
           <span
-            v-for="(val, key) in product.attributes"
+            v-for="(value, key) in product.attributes"
             :key="key"
-            class="bg-gray-200 px-2 py-1 rounded-full"
-          >
-            {{ key }}={{ val }}
+            class="inline-flex items-center justify-center rounded-full border border-blue-500 px-2.5 py-0.5 text-blue-600 bg-blue-200">
+            <p class="text-xs whitespace-nowrap">{{ key }}: {{ value }}</p>
           </span>
         </div>
       </div>
@@ -115,6 +134,7 @@
       @submit="handleSubmit"
     />
   </div>
+  </div>
 </template>
 
 <script setup>
@@ -123,7 +143,7 @@ import ProductModal from '@/components/ProductModal.vue'
 import {createProduct, getProducts} from "@/integrations/store/services.js";
 
 const products = ref([
-  { id: 1, name: 'Cement A', attributes: { Type: 'Portland', Grade: '43' } },
+  { id: "fdgjahfdkjahfjhaghfaksfhsajkd", name: 'Cement A', attributes: { Type: 'Portland', Grade: '43' } },
   { id: 2, name: 'Brick B', attributes: { Color: 'Red', Size: 'Small' } },
 ])
 

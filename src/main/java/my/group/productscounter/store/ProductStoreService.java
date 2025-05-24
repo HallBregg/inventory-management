@@ -79,8 +79,7 @@ public class ProductStoreService {
     }
 
     List<ProductDto> findAll() {
-        throw new ProductNotFoundException();
-//        return productRepository.findAll().stream().map(ProductToDtoMapper::of).toList();
+        return productRepository.findAll().stream().map(ProductToDtoMapper::of).toList();
 
     }
 
