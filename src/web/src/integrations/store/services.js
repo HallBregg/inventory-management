@@ -21,3 +21,18 @@ export const getAllProperties = async () => {
 export const createProduct = async (name, attributes) => {
     const response = await api.post('', {name: name, properties: Object.entries(attributes).map(([name, value]) => ({ name, value }))})
 }
+
+
+export const updateProduct = async (id, name, attributes) => {
+    const response = await api
+        .put(`/${id}`, {
+            name: name,
+            properties: Object
+                .entries(attributes)
+                .map(([name, value]) => ({ name, value }))})
+}
+
+
+export const deleteProduct = async (id) => {
+    const response = await api.delete(`/${id}`)
+}

@@ -1,8 +1,5 @@
 <template>
-
   <div class="section">
-
-
   <!--  Error message-->
   <div
     v-if="errorAlert"
@@ -33,8 +30,6 @@
       </button>
     </div>
   </div>
-
-
   <div class="p-6 space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
@@ -95,33 +90,52 @@
     </div>
 
     <!-- Product List -->
-    <div class="space-y-4">
-      <div
-        v-for="product in filteredProducts"
-        :key="product.id"
-        class="border rounded p-4 space-y-2"
-      >
-        <div class="flex justify-between items-center">
-          <div>
-            <span class="font-semibold">{{ product.name }}</span>
-            <div class="text-xs text-gray-500">ID: {{ product.id }}</div>
-          </div>
-          <div class="space-x-2">
-            <button @click="openEditModal(product)" class="text-blue-600 text-sm hover-scale hover:underline">Edit</button>
-            <button @click="deleteProduct(product.id)" class="text-red-600 text-sm hover-scale hover:underline">Delete</button>
-          </div>
-        </div>
-
-        <div class="flex flex-wrap gap-2 text-sm">
-
-          <span
-            v-for="(value, key) in product.attributes"
-            :key="key"
-            class="inline-flex items-center justify-center rounded-full border border-blue-500 px-2.5 py-0.5 text-blue-600 bg-blue-200">
-            <p class="text-xs whitespace-nowrap">{{ key }}: {{ value }}</p>
-          </span>
-        </div>
-      </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-auto border border-gray-300 text-sm text-gray-700">
+        <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2 text-left font-semibold">Name</th>
+          <th class="px-4 py-2 text-left font-semibold">ID</th>
+          <th class="px-4 py-2 text-left font-semibold">Attributes</th>
+          <th class="px-4 py-2 text-left font-semibold">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr
+          v-for="product in filteredProducts"
+          :key="product.id"
+          class="border-t hover:bg-gray-50"
+        >
+          <td class="px-4 py-2">{{ product.name }}</td>
+          <td class="px-4 py-2 text-xs text-gray-500">{{ product.id }}</td>
+          <td class="px-4 py-2">
+            <div class="flex flex-wrap gap-1">
+              <span
+                v-for="(value, key) in product.attributes"
+                :key="key"
+                class="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 border border-blue-300"
+              >
+                {{ key }}: {{ value }}
+              </span>
+            </div>
+          </td>
+          <td class="px-4 py-2 whitespace-nowrap">
+            <button
+              @click="openEditModal(product)"
+              class="text-blue-600 hover:underline hover-scale mr-2"
+            >
+              Edit
+            </button>
+            <button
+              @click="deleteProductHandler(product.id)"
+              class="text-red-600 hover:underline hover-scale"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Modal -->
@@ -134,20 +148,29 @@
       @submit="handleSubmit"
     />
   </div>
+
+    <ConfirmModal
+      :visible="showDeleteModal"
+      title="Confirm delete."
+      message="Are you sure you want to delete the product?"
+      @confirm="confirmDelete"
+      @cancel="showDeleteModal = false"
+    />
   </div>
+
 </template>
 
 <script setup>
 import {ref, computed, onMounted} from 'vue'
 import ProductModal from '@/components/ProductModal.vue'
-import {createProduct, getProducts} from "@/integrations/store/services.js";
+import ConfirmModal from '@/components/ConfirmModal.vue'
+import {createProduct, getProducts, updateProduct, deleteProduct} from "@/integrations/store/services.js";
 
-const products = ref([
-  { id: "fdgjahfdkjahfjhaghfaksfhsajkd", name: 'Cement A', attributes: { Type: 'Portland', Grade: '43' } },
-  { id: 2, name: 'Brick B', attributes: { Color: 'Red', Size: 'Small' } },
-])
+const products = ref([])
 
 const showModal = ref(false)
+const showDeleteModal = ref(false)
+const productIdToDelete = ref(null)
 const modalMode = ref('create') // 'create' or 'edit'
 const selectedProduct = ref(null)
 
@@ -160,8 +183,6 @@ const errorAlert = ref(false)
 
 onMounted(async () => {
   await getProductsHandler()
-
-
 })
 
 const errorAlertCloseHandler = () => {
@@ -225,12 +246,11 @@ const openEditModal = (product) => {
 
 const handleSubmit = async (newProduct) => {
   if (modalMode.value === 'edit') {
-    const index = products.value.findIndex(p => p.id === selectedProduct.value.id)
-    if (index !== -1) products.value[index] = { ...selectedProduct.value, ...newProduct }
+    await updateProduct(selectedProduct.value.id, newProduct.name, newProduct.attributes)
   } else {
     await createProduct(newProduct.name, newProduct.attributes)
-    await getProductsHandler()
   }
+  await getProductsHandler()
   showModal.value = false
 }
 
@@ -238,7 +258,14 @@ const closeModal = () => {
   showModal.value = false
 }
 
-const deleteProduct = (id) => {
-  products.value = products.value.filter(p => p.id !== id)
+const deleteProductHandler = async (id) => {
+  showDeleteModal.value = true;
+  productIdToDelete.value = id;
+}
+
+const confirmDelete = async () => {
+  await deleteProduct(productIdToDelete.value);
+  await getProductsHandler();
+  showDeleteModal.value = false;
 }
 </script>
