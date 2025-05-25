@@ -63,6 +63,23 @@
           @input="debouncedSaveStageName(stage)"
           class="text-base font-bold border px-2 py-1 rounded w-full max-w-xs"
         />
+        <button
+          @click="toggleSection(stageIndex)"
+          class="flex items-center gap-1 text-caption text-blue-600 hover-scale"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="w-3 h-3 transform duration-200"
+            :class="{ 'rotate-90': isExpanded(stageIndex) }"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          ><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+          </svg>
+          {{ isExpanded(stageIndex) ? 'Hide' : 'Show' }} details
+
+        </button>
         <div class="space-x-2">
           <button @click="openModalForStage(stageIndex)" class="btn-standard">+ Add Product</button>
           <button @click="removeStage(stage.id)" class="btn-standard-danger">Delete Stage</button>
@@ -70,29 +87,30 @@
       </div>
       <div class="text-muted text-caption mb-2">{{ stage.id }}</div>
 
-      <div v-if="stage.products.length" class="space-y-3">
-        <!-- Stage Product Table -->
-        <div class="overflow-x-auto">
-          <table class="min-w-full table-auto border border-gray-300 text-sm text-gray-800">
-            <thead class="bg-gray-100">
-            <tr>
-              <th class="px-3 py-2 text-left font-medium">Name</th>
-              <th class="px-3 py-2 text-left font-medium">Identifier</th>
-              <th class="px-3 py-2 text-left font-medium">Attributes</th>
-              <th class="px-3 py-2 text-left font-medium">Quantity</th>
-              <th class="px-3 py-2 text-left font-medium">Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr
-              v-for="(item, productIndex) in sortedProducts(stage)"
-              :key="item.id"
-              class="border-t hover:bg-gray-50"
-            >
-              <td class="px-3 py-2 font-medium">{{ item.name }}</td>
-              <td class="px-3 py-2 font-medium">{{ item.id }}</td>
-              <td class="px-3 py-2">
-                <div class="flex flex-wrap gap-1">
+      <div v-if="isExpanded(stageIndex)" class="transition">
+        <div v-if="stage.products.length" class="space-y-3">
+          <!-- Stage Product Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full table-auto border border-gray-300 text-sm text-gray-800">
+              <thead class="bg-gray-100">
+              <tr>
+                <th class="px-3 py-2 text-left font-medium">Name</th>
+                <th class="px-3 py-2 text-left font-medium">Identifier</th>
+                <th class="px-3 py-2 text-left font-medium">Attributes</th>
+                <th class="px-3 py-2 text-left font-medium">Quantity</th>
+                <th class="px-3 py-2 text-left font-medium">Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr
+                v-for="(item, productIndex) in sortedProducts(stage)"
+                :key="item.id"
+                class="border-t hover:bg-gray-50"
+              >
+                <td class="px-3 py-2 font-medium">{{ item.name }}</td>
+                <td class="px-3 py-2 font-medium">{{ item.id }}</td>
+                <td class="px-3 py-2">
+                  <div class="flex flex-wrap gap-1">
             <span
               v-for="(val, key) in item.attributes"
               :key="key"
@@ -100,40 +118,37 @@
             >
               {{ key }}: {{ val }}
             </span>
-                </div>
-              </td>
-              <td class="px-3 py-2 w-28">
-                <input
-                  v-model.number="item.quantity"
-                  @input="handleProductQuantityChange(item, stage)"
-                  type="number"
-                  min="0"
-                  class="border px-2 py-1 rounded w-full"
-                />
-              </td>
-              <td class="px-3 py-2 whitespace-nowrap space-x-1 text-xs text-gray-500">
-                <button
-                  @click="moveProduct(stageIndex, productIndex, -1)"
-                  :disabled="productIndex === 0"
-                  class="hover-scale hover:scale-150 disabled:opacity-40">↑</button>
-                <button
-                  @click="moveProduct(stageIndex, productIndex, 1)"
-                  :disabled="productIndex === stage.products.length - 1"
-                  class="hover-scale hover:scale-150 disabled:opacity-40">↓</button>
-                <button
-                  @click="removeProduct(stageIndex, productIndex)"
-                  class="text-red-600 hover-scale">Remove</button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
+                  </div>
+                </td>
+                <td class="px-3 py-2 w-28">
+                  <input
+                    v-model.number="item.quantity"
+                    @input="handleProductQuantityChange(item, stage)"
+                    type="number"
+                    min="0"
+                    class="border px-2 py-1 rounded w-full"
+                  />
+                </td>
+                <td class="px-3 py-2 whitespace-nowrap space-x-1 text-xs text-gray-500">
+                  <button
+                    @click="moveProduct(stageIndex, productIndex, -1)"
+                    :disabled="productIndex === 0"
+                    class="hover-scale hover:scale-150 disabled:opacity-40">↑</button>
+                  <button
+                    @click="moveProduct(stageIndex, productIndex, 1)"
+                    :disabled="productIndex === stage.products.length - 1"
+                    class="hover-scale hover:scale-150 disabled:opacity-40">↓</button>
+                  <button
+                    @click="removeProduct(stageIndex, productIndex)"
+                    class="text-red-600 hover-scale">Remove</button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+        <div v-else class="text-sm text-gray-500">No products added yet.</div>
       </div>
-      <div v-else class="text-sm text-gray-500">No products added yet.</div>
-
-
-
-
       <details class="mt-3">
         <summary class="cursor-pointer text-sm text-blue-700 font-medium">
           Stage Summary
@@ -267,7 +282,19 @@ const showAddStageModal = ref(false)
 
 const products = ref([])
 const availableAttributes = ref([])
+const expandedSections = ref(new Set())
 
+const toggleSection = (index) => {
+  if (expandedSections.value.has(index)) {
+    expandedSections.value.delete(index)
+  } else {
+    expandedSections.value.add(index)
+  }
+}
+
+const isExpanded = (index) => {
+  return expandedSections.value.has(index)
+}
 
 onMounted(async () => {
   const id = route.params.id

@@ -48,6 +48,7 @@ public class ProductStoreService {
         } catch (Exception exc) {
             throw new ProductCouldNotBeCreatedException(exc);
         }
+        productRepository.save(product);
         return ProductToDtoMapper.of(product);
     }
 

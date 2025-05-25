@@ -27,14 +27,29 @@
       </div>
 
       <!-- Attribute pills -->
-      <div class="flex flex-wrap gap-2 mb-4">
+
+      <div class="flex flex-wrap gap-2">
         <span
           v-for="(value, key) in localProduct.attributes"
           :key="key"
-          class="bg-gray-200 text-sm px-2 py-1 rounded-full flex items-center gap-2"
-        >
-          {{ key }}={{ value }}
-          <button @click="removeAttribute(key)" class="text-red-600 hover:text-red-800 text-xs">✕</button>
+          class="inline-flex items-center justify-center rounded-full border border-blue-500 px-2.5 py-0.5 text-blue-600">
+        <p class="text-sm whitespace-nowrap">{{ key }}: {{ value }}</p>
+
+        <button
+          @click="removeAttribute(key)"
+          class="ms-1.5 -me-1 inline-block rounded-full bg-blue-200 p-0.5 text-blue-700 transition hover:bg-blue-300">
+          <span class="sr-only">Remove badge</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-3"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
         </span>
       </div>
 
