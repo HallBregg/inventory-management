@@ -60,13 +60,13 @@
     }
 
     .btn-standard {
-        @apply inline-block rounded-sm border border-current px-3 py-2 text-blue-600 text-sm;
+        @apply inline-block rounded-sm border border-current px-2 py-1 text-blue-600 text-sm;
         @apply transform transition-transform hover:scale-105 duration-100 hover:shadow-md;
     }
 
     .btn-standard-danger {
         color: var(--color-danger);
-        @apply inline-block rounded-sm border border-current px-3 py-2 text-sm;
+        @apply inline-block rounded-sm border border-current px-2 py-1 text-sm;
         @apply transform transition-transform hover:scale-105 duration-100 hover:shadow-md;
     }
 
