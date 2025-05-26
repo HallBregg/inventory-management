@@ -9,7 +9,7 @@ import { RouterLink, RouterView } from 'vue-router'
       <div class="flex items-center gap-4">
         <!-- Logo -->
         <RouterLink to="/">
-          <div class="font-bold text-lg tracking-tight">🧱 BuildMate</div>
+          <div class="font-bold text-lg tracking-tight">🏗️ Etapownik</div>
         </RouterLink>
 
         <!-- Navigation -->
