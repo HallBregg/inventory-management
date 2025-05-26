@@ -50,15 +50,15 @@
     <!-- Modal -->
     <div v-if="showAddModal" class="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
       <div class="bg-white p-6 rounded shadow w-[400px]">
-        <h2 class="text-lg font-semibold mb-4">Add New Project</h2>
+        <h2 class="text mb-4">Add New Project</h2>
         <input
           v-model="newProjectName"
           placeholder="Project name"
-          class="border w-full px-3 py-2 rounded mb-4"
+          class="border w-full px-1 py-1 rounded mb-4"
         />
         <div class="flex justify-end gap-2">
-          <button @click="showAddModal = false" class="px-4 py-2 border rounded">Cancel</button>
-          <button @click="addProject" class="px-4 py-2 bg-blue-600 text-white rounded">Add</button>
+          <button @click="showAddModal = false" class="px-2 py-2 border rounded">Cancel</button>
+          <button @click="addProject" class="px-2 py-2 bg-blue-600 text-white rounded">Add</button>
         </div>
       </div>
     </div>
@@ -111,7 +111,7 @@ const deleteProjectHandler = async (id) => {
 }
 
 const confirmDelete = async () => {
-  await deleteProject(projectIdToDelete)
+  await deleteProject(projectIdToDelete.value)
   await fetchAllProjects()
   showDeleteModal.value = false;
 }

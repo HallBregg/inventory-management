@@ -14,8 +14,8 @@ import { RouterLink, RouterView } from 'vue-router'
 
         <!-- Navigation -->
         <nav class="flex gap-4 text-sm">
-          <RouterLink to="/projects" class="hover:underline" active-class="text-yellow-300">Projects</RouterLink>
-          <RouterLink to="/store" class="hover:underline" active-class="text-yellow-300">Store</RouterLink>
+          <RouterLink to="/projects" class="hover-scale" active-class="text-yellow-600">Projects</RouterLink>
+          <RouterLink to="/store" class="hover-scale" active-class="text-yellow-600">Store</RouterLink>
         </nav>
       </div>
     </header>
