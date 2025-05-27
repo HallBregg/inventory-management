@@ -238,6 +238,27 @@
       @close="showAddStageModal = false"
       @submit="handleCreateStage"
     />
+    <ConfirmModal
+      :visible="showDeleteProductModal"
+      :title="t('deleteTitle')"
+      :message="t('deleteMessage')"
+      @confirm="showDeleteProductModalHandler"
+      @cancel="showDeleteProductModal = false"
+    />
+    <ConfirmModal
+      :visible="showDeleteStageModal"
+      :title="t('deleteTitle')"
+      :message="t('deleteStageMessage')"
+      @confirm="showDeleteStageModalHandler"
+      @cancel="showDeleteStageModal = false"
+    />
+    <ConfirmModal
+      :visible="showDeleteProjectModal"
+      :title="t('deleteTitle')"
+      :message="t('deleteProjectMessage')"
+      @confirm="showDeleteProjectModalHandler"
+      @cancel="showDeleteProjectModal = false"
+    />
 
   </div>
   <div v-else class="text-gray-800 text-sm mb-4 flex items-center gap-2">
@@ -262,8 +283,9 @@ import {
 } from '@/integrations/projects/services'
 import ProductSelectModal from "@/components/ProductSelectModal.vue";
 import AddStageModal from "@/components/AddStageModal.vue";
-import {getAllProperties, getProducts} from "@/integrations/store/services.js";
+import {deleteProduct, getAllProperties, getProducts} from "@/integrations/store/services.js";
 import { useI18n } from 'vue-i18n'
+import ConfirmModal from "@/components/ConfirmModal.vue";
 
 const route = useRoute()
 const router = useRouter();
@@ -279,6 +301,41 @@ const products = ref([])
 const availableAttributes = ref([])
 const expandedSections = ref(new Set())
 const { t } = useI18n()
+
+const showDeleteProjectModal = ref(false)
+const showDeleteProjectModalHandler = async () => {
+  await deleteProject(project.value.id)
+  router.push({name: "projectListView"})
+  showDeleteProjectModal.value = false;
+}
+
+const showDeleteStageModal = ref(false)
+const stageIdToDelete = ref(null)
+const showDeleteStageModalHandler = async () => {
+  isDirty.value = true
+  try {
+    await deleteStage(project.value.id, stageIdToDelete.value)
+    project.value = await getProjectDetails(project.value.id)
+    isDirty.value = false
+  } catch (err) {
+    console.error()
+  }
+  stageIdToDelete.value = null
+  showDeleteStageModal.value = false;
+}
+
+const showDeleteProductModal = ref(false)
+const deleteProductStageIndex = ref(null)
+const deleteProductIndex = ref(null)
+
+const showDeleteProductModalHandler = async () => {
+  const stage = project.value.stages[deleteProductStageIndex.value];
+  stage.products.splice(deleteProductIndex.value, 1)
+  updateStageHandler(stage)
+  showDeleteProductModal.value = false;
+  deleteProductIndex.value = null;
+  deleteProductStageIndex.value = null;
+}
 
 const toggleSection = (index) => {
   if (expandedSections.value.has(index)) {
@@ -341,8 +398,7 @@ const updateStageHandler = (stage) => {
 const debouncedSaveStageName = (stage) => { updateStageHandler(stage); }
 
 const deleteProjectHandler = async () => {
-  await deleteProject(project.value.id)
-  router.push({name: "projectListView"})
+  showDeleteProjectModal.value = true;
 }
 
 const handleCreateStage = async (name) => {
@@ -356,15 +412,9 @@ const handleCreateStage = async (name) => {
   }
 }
 
-const removeStage = async (stageId) => {
-  isDirty.value = true
-  try {
-    await deleteStage(project.value.id, stageId)
-    project.value = await getProjectDetails(project.value.id)
-    isDirty.value = false
-  } catch (err) {
-    console.error()
-  }
+const removeStage = (stageId) => {
+  showDeleteStageModal.value = true
+  stageIdToDelete.value = stageId
 }
 
 const openModalForStage = (index) => {
@@ -373,9 +423,9 @@ const openModalForStage = (index) => {
 }
 
 const removeProduct = (stageIndex, productIndex) => {
-  const stage = project.value.stages[stageIndex];
-  stage.products.splice(productIndex, 1)
-  updateStageHandler(stage)
+  showDeleteProductModal.value = true
+  deleteProductStageIndex.value = stageIndex
+  deleteProductIndex.value = productIndex
 }
 
 const moveProduct = async (stageIndex, productIndex, direction) => {

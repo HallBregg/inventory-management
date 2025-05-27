@@ -9,8 +9,13 @@ import { RouterLink, RouterView } from 'vue-router'
       <div class="flex items-center gap-4">
         <!-- Logo -->
         <RouterLink to="/">
-          <div class="font-bold text-lg tracking-tight">🏗️ Etapownik</div>
+          <div class="flex flex-col items-center justify-center text-white hover-scale">
+            <img src="/src/assets/logo-white.png" alt="Logo" class="h-5 w-auto"/>
+            Etapownik
+          </div>
         </RouterLink>
+
+        <div class="h-10 w-px bg-white/30 mx-4"></div>
 
         <!-- Navigation -->
         <nav class="flex gap-4 text-sm">
@@ -20,7 +25,7 @@ import { RouterLink, RouterView } from 'vue-router'
       </div>
 
       <!-- Language Switcher -->
-      <select v-model="$i18n.locale" class="bg-gray-800 text-xs text-white border border-gray-600 px-1 py-1 rounded">
+      <select v-model="$i18n.locale" class="bg-gray-800 text-xs text-white border border-gray-600 px-1 py-1 rounded hover-scale">
         <option value="en">en</option>
         <option value="pl">pl</option>
       </select>
