@@ -2,20 +2,19 @@ package my.group.productscounter.project;
 
 
 import jakarta.persistence.*;
+import my.group.productscounter.BaseEntity;
+
+import java.util.Objects;
 
 
 @Entity
-@Table(
-        uniqueConstraints = @UniqueConstraint(columnNames = {"stage_id", "position"})
-)
-class StageProduct {
-
-    @EmbeddedId
-    private StageProductId id;
-
-    @MapsId("stageId")
-    @ManyToOne(optional = false)
+class StageProduct extends BaseEntity {
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, updatable = false)
     private Stage stage;
+
+    @Embedded
+    private Position position;
 
     @Column(nullable = false)
     private Long productId;
@@ -26,11 +25,11 @@ class StageProduct {
     protected StageProduct() {
     }  // JPA requirement
 
-    StageProduct(Stage stage, Long productId, int quantity, Position position) {
-        this.id = new StageProductId(stage.getId(), position);
-        this.stage = stage;
-        this.productId = productId;
-        this.quantity = quantity;
+    StageProduct(Stage stage, Long productId, Position position, int quantity) {
+        this.stage = Objects.requireNonNull(stage);
+        this.productId = Objects.requireNonNull(productId);
+        this.position = Objects.requireNonNull(position);
+        setQuantity(quantity);
     }
 
     Long getProductId() {
@@ -42,10 +41,15 @@ class StageProduct {
     }
 
     Position getPosition() {
-        return id.getPosition();
+        return position;
     }
 
-    void setQuantity(int quantity) {
-        this.quantity = quantity;
+    void setQuantity(int q) {
+        if (q < 0) throw new IllegalArgumentException("Quantity must be non-negative");
+        this.quantity = q;
+    }
+
+    void setPosition(Position newPosition) {
+        this.position = Objects.requireNonNull(newPosition);
     }
 }

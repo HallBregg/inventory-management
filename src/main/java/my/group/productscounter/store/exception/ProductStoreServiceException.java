@@ -23,7 +23,7 @@ public abstract class ProductStoreServiceException extends RuntimeException {
         this.code = code;
     }
 
-    String getCode() {
+    public String getCode() {
         return code;
     }
 }

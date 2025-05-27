@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-class StageNotFound extends RuntimeException {
-}
+class StageNotFound extends RuntimeException {}
 
 
 @Entity
@@ -60,6 +59,6 @@ public class Project extends BaseEntity {
     }
 
     void deleteStage(UUID stageId) {
-        stages.removeIf(stage -> stage.getId() == stageId);
+        stages.removeIf(stage -> stage.getId().equals(stageId));
     }
 }

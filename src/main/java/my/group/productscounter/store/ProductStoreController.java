@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import my.group.productscounter.store.dto.CreateProductDto;
 import my.group.productscounter.store.dto.ProductDto;
 import my.group.productscounter.store.dto.UpdateProductDto;
+import my.group.productscounter.store.dto.UpdateProductRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -36,8 +37,8 @@ class ProductStoreController {
     }
 
     @PutMapping("/{id}")
-    ProductDto updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductDto request) {
-        return productStoreService.update(request);
+    ProductDto updateProduct(@PathVariable Long id, @Valid @RequestBody UpdateProductRequest request) {
+        return productStoreService.update(new UpdateProductDto(id, request.name(), request.properties()));
     }
 
     @PostMapping
