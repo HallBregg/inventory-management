@@ -4,8 +4,8 @@
       <h2 class="text-lg font-semibold mb-4">{{ title }}</h2>
       <p class="mb-4">{{ message }}</p>
       <div class="flex justify-end space-x-2">
-        <button @click="cancel" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
-        <button @click="confirm" class="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
+        <button @click="cancel" class="px-4 py-2 bg-gray-200 rounded">{{ $t('cancel') }}</button>
+        <button @click="confirm" class="px-4 py-2 bg-red-600 text-white rounded">{{ $t('delete') }}</button>
       </div>
     </div>
   </div>

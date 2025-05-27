@@ -16,7 +16,7 @@
       </svg>
 
       <div class="flex-1">
-        <strong class="font-medium">Something went wrong</strong>
+        <strong class="font-medium">{{ $t('somethingWentWrong') }}</strong>
         <div class="mt-1 text-sm text-red-700">
           <pre>{{ error }}</pre>
         </div>
@@ -33,13 +33,13 @@
   <div class="p-6 space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
-      <h1 class="text-title">Product Store</h1>
-      <button @click="openAddModal" class="btn-standard">+ Add Product</button>
+      <h1 class="text-title">{{ $t('productStore') }}</h1>
+      <button @click="openAddModal" class="btn-standard">+ {{ $t('addProduct') }}</button>
     </div>
 
     <!-- Filters -->
     <div class="rounded mb-4 space-y-4">
-      <h2 class="text">Filter Products</h2>
+      <h2 class="text">{{ $t('filterProducts') }}</h2>
       <div class="flex items-center gap-2">
         <input
           v-model="filterName"
@@ -57,7 +57,7 @@
           placeholder="Value"
           class="border px-2 py-1 rounded w-1/4"
         />
-        <button @click="addFilterAttribute" class="text-green-600 text-sm hover-scale px-3 py-2 border border-current  rounded-sm">+ Add</button>
+        <button @click="addFilterAttribute" class="text-green-600 text-sm hover-scale px-3 py-2 border border-current  rounded-sm">+ {{ $t('add') }}</button>
       </div>
 
       <datalist id="attrNames">
@@ -73,7 +73,7 @@
         <button
           @click="removeFilterAttribute(index)"
           class="ms-1.5 -me-1 inline-block rounded-full bg-blue-200 p-0.5 text-blue-700 transition hover:bg-blue-300">
-          <span class="sr-only">Remove badge</span>
+          <span class="sr-only">{{ $t('removeBadge') }}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -94,10 +94,10 @@
       <table class="min-w-full table-auto border border-gray-300 text-sm text-gray-700">
         <thead class="bg-gray-100">
         <tr>
-          <th class="px-4 py-2 text-left font-semibold">Name</th>
-          <th class="px-4 py-2 text-left font-semibold">ID</th>
-          <th class="px-4 py-2 text-left font-semibold">Attributes</th>
-          <th class="px-4 py-2 text-left font-semibold">Actions</th>
+          <th class="px-4 py-2 text-left font-semibold">{{ $t('name') }}</th>
+          <th class="px-4 py-2 text-left font-semibold">{{ $t('id') }}</th>
+          <th class="px-4 py-2 text-left font-semibold">{{ $t('attributes') }}</th>
+          <th class="px-4 py-2 text-left font-semibold">{{ $t('actions') }}</th>
         </tr>
         </thead>
         <tbody>
@@ -123,15 +123,11 @@
             <button
               @click="openEditModal(product)"
               class="text-blue-600 hover:underline hover-scale mr-2"
-            >
-              Edit
-            </button>
+            >{{ $t('edit') }}</button>
             <button
               @click="deleteProductHandler(product.id)"
               class="text-red-600 hover:underline hover-scale"
-            >
-              Delete
-            </button>
+            >{{ $t('delete') }}</button>
           </td>
         </tr>
         </tbody>
@@ -151,8 +147,8 @@
 
     <ConfirmModal
       :visible="showDeleteModal"
-      title="Confirm delete."
-      message="Are you sure you want to delete the product?"
+      :title="t('deleteTitle')"
+      :message="t('deleteMessage')"
       @confirm="confirmDelete"
       @cancel="showDeleteModal = false"
     />
@@ -161,6 +157,7 @@
 </template>
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import {ref, computed, onMounted} from 'vue'
 import ProductModal from '@/components/ProductModal.vue'
 import ConfirmModal from '@/components/ConfirmModal.vue'
@@ -180,6 +177,8 @@ const attrKey = ref('')
 const attrValue = ref('')
 const error = ref(null)
 const errorAlert = ref(false)
+const { t } = useI18n()
+
 
 onMounted(async () => {
   await getProductsHandler()

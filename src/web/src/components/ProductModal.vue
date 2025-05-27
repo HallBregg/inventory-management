@@ -1,7 +1,7 @@
 <template>
   <div class="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
     <div class="bg-white w-[600px] max-h-[90vh] p-6 rounded shadow overflow-y-auto">
-      <h2 class="text-lg font-bold mb-4">{{ mode === 'edit' ? 'Edit Product' : 'Add Product' }}</h2>
+      <h2 class="text-lg font-bold mb-4">{{ mode === 'edit' ? $t('editProduct') : $t('addProduct') }}</h2>
 
       <!-- Name input -->
       <input v-model="localProduct.name" placeholder="Product name" class="border w-full px-3 py-2 rounded mb-4" />
@@ -19,7 +19,7 @@
           placeholder="Value"
           class="border px-2 py-1 rounded w-1/2"
         />
-        <button @click="addAttribute" class="text-green-600 text-sm">+ Add</button>
+        <button @click="addAttribute" class="text-green-600 text-sm">+ {{ $t('add') }}</button>
 
         <datalist id="attrNames">
           <option v-for="name in allAttributeNames" :key="name">{{ name }}</option>
@@ -38,7 +38,7 @@
         <button
           @click="removeAttribute(key)"
           class="ms-1.5 -me-1 inline-block rounded-full bg-blue-200 p-0.5 text-blue-700 transition hover:bg-blue-300">
-          <span class="sr-only">Remove badge</span>
+          <span class="sr-only">{{ $t('removeBadge') }}</span>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -55,9 +55,9 @@
 
       <!-- Footer -->
       <div class="flex justify-end gap-2">
-        <button @click="$emit('close')" class="px-4 py-2 border rounded">Cancel</button>
+        <button @click="$emit('close')" class="px-4 py-2 border rounded">{{ $t('cancel') }}</button>
         <button @click="submit" class="px-4 py-2 bg-blue-600 text-white rounded">
-          {{ mode === 'edit' ? 'Save Changes' : 'Add Product' }}
+          {{ mode === 'edit' ? $t('save') : $t('addProduct') }}
         </button>
       </div>
     </div>

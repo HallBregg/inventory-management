@@ -4,7 +4,7 @@
     <div class="bg-white w-[700px] max-h-[80vh] p-6 rounded shadow-lg overflow-auto">
       <!-- Header -->
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-semibold text-gray-800">Add Product</h2>
+        <h2 class="text-lg font-semibold text-gray-800">{{ $t('addProduct') }}</h2>
         <button @click="$emit('close')" class="text-gray-600 hover:text-black font-bold text-xl">&times;</button>
       </div>
 
@@ -19,21 +19,20 @@
       <!-- Attribute filters -->
       <div class="flex items-end gap-2 mb-4">
         <div class="flex-1">
-          <label class="text-sm font-medium block">Attribute Name</label>
           <input
             v-model="attributeNameInput"
             class="w-full border px-2 py-1 rounded text-sm"
             list="attributeNameList"
+            placeholder="Attribute name"
           />
           <datalist id="attributeNameList">
             <option v-for="attr in attributeNames" :key="attr" :value="attr" />
           </datalist>
         </div>
         <div class="flex-1">
-          <label class="text-sm font-medium block">Value</label>
-          <input v-model="attributeValueInput" class="w-full border px-2 py-1 rounded text-sm" />
+          <input v-model="attributeValueInput" class="w-full border px-2 py-1 rounded text-sm" placeholder="Attribute value"/>
         </div>
-        <button @click="addFilter" class="text-green-600 text-sm hover-scale px-3 py-2 border border-current  rounded-sm">+ Add</button>
+        <button @click="addFilter" class="text-green-600 text-sm hover-scale px-3 py-2 border border-current  rounded-sm">+ {{ $t('add') }}</button>
       </div>
 
       <!-- Filter summary -->
@@ -70,10 +69,10 @@
         <table class="min-w-full table-auto border border-gray-300 text-sm text-gray-800">
           <thead class="bg-gray-100">
           <tr>
-            <th class="px-3 py-2 text-left font-medium">Product</th>
-            <th class="px-3 py-2 text-left font-medium">Attributes</th>
-            <th class="px-3 py-2 text-left font-medium">Quantity</th>
-            <th class="px-3 py-2 text-left font-medium">Actions</th>
+            <th class="px-3 py-2 text-left font-medium">{{ $t('product') }}</th>
+            <th class="px-3 py-2 text-left font-medium">{{ $t('attributes') }}</th>
+            <th class="px-3 py-2 text-left font-medium">{{ $t('quantity') }}</th>
+            <th class="px-3 py-2 text-left font-medium">{{ $t('actions') }}</th>
           </tr>
           </thead>
           <tbody>
@@ -107,7 +106,7 @@
               <button
                 @click="emitAdd(product)"
                 class="text-blue-600 hover:underline hover-scale mr-2"
-              >Add</button>
+              >{{ $t('add') }}</button>
             </td>
           </tr>
           </tbody>
@@ -119,8 +118,10 @@
 
 
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 
+const { t } = useI18n()
 const props = defineProps({
   products: Array,
   attributeNames: Array
