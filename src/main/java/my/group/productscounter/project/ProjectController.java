@@ -86,4 +86,12 @@ class ProjectController {
     ProjectView getProjectView(@PathVariable UUID id){
         return projectQuery.getFullProject(id);
     };
+
+    @GetMapping("/csv/{projectId}")
+    ResponseEntity<String> getSummaryCsv(@PathVariable UUID projectId){
+        String csv = projectQuery.exportProjectSummaryCSV(projectId);
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=summary-" + projectId + ".csv")
+                .body(csv);
+    }
 }

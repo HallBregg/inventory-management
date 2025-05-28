@@ -31,4 +31,21 @@ interface ProjectQueryRepository extends Repository<Project, Long> {
               WHERE p.id = :projectId
             """)
     List<FlatProjectView> getFlatProjectViews(@Param("projectId") UUID projectId);
+
+    @Query("""
+        SELECT sp.productId                 AS productId,
+               prod.name                    AS productName,
+               SUM(sp.quantity)             AS quantity,
+               prop.name                    AS propertyName,
+               prop.value                   AS propertyValue
+        FROM Project p
+        JOIN p.stages s
+        JOIN s.products sp
+        JOIN Product prod ON prod.id = sp.productId
+        LEFT JOIN prod.properties prop
+        WHERE p.id = :projectId
+        GROUP BY sp.productId, prod.name, prop.name, prop.value
+        ORDER BY prod.name
+        """)
+    List<FlatProjectSummary> getFlatProjectSummaries(@Param("projectId") UUID projectId);
 }

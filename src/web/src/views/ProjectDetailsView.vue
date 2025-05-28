@@ -23,7 +23,7 @@
       />
       <div class="flex gap-2">
         <button
-          @click="console.log('Export')"
+          @click="exportButtonHandler(project.id)"
           class="inline-flex items-center gap-1 btn-standard">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -274,7 +274,7 @@
 import { ref, onMounted } from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {
-  createStage,
+  createStage, csvSummary,
   deleteProject,
   deleteStage,
   getProjectDetails,
@@ -498,4 +498,21 @@ const handleProductSelect = ({ product, quantity }) => {
 const handleProductQuantityChange = (product, stage) => {
   updateStageHandler(stage);
 }
+
+const exportButtonHandler = async (projectId) => {
+  try {
+    const response = await csvSummary(projectId)
+    const blob = new Blob([response.data], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `summary-${projectId}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } catch (error) {
+    console.error('CSV download failed:', error)
+  }
+}
+
 </script>

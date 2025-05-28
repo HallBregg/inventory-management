@@ -76,3 +76,10 @@ export const updateStage = async (projectId, stage) => {
         body
     )
 }
+
+
+export const csvSummary = async (projectId) => {
+    return await api.get(
+        `/csv/${projectId}`,
+        {responseType: 'blob'})
+}
