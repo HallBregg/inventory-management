@@ -1,8 +1,6 @@
 package my.group.productscounter.project.query;
 
-import java.util.UUID;
-
-interface FlatProjectSummary {
+interface FlatAccumulatedProductView {
     Long getProductId();
     String getProductName();
     Integer getQuantity();

@@ -47,5 +47,5 @@ interface ProjectQueryRepository extends Repository<Project, Long> {
         GROUP BY sp.productId, prod.name, prop.name, prop.value
         ORDER BY prod.name
         """)
-    List<FlatProjectSummary> getFlatProjectSummaries(@Param("projectId") UUID projectId);
+    List<FlatAccumulatedProductView> getFlatProjectSummaries(@Param("projectId") UUID projectId);
 }

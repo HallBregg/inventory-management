@@ -1,71 +1,22 @@
 package my.group.productscounter.project.query;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import my.group.productscounter.project.exception.ProjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 
-class ProductSummaryBuilder{
-    private final Long productId;
-    private final String name;
-    private final Integer quantity;
-    private final Map<String, String> properties = new LinkedHashMap<>();
-
-    ProductSummaryBuilder(Long productId, String name, Integer quantity){
-        this.productId = productId;
-        this.name = name;
-        this.quantity = quantity;
-    }
-
-    void addProperty(String name, String value){
-        this.properties.put(name, value);
-    }
-
-    ProductSummaryView build(){
-        return new ProductSummaryView(productId, name, quantity, properties);
-    }
-}
-
-
-@Component
-class ProjectSummaryCsvExporter{
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private String escape(String s) {
-        return "\"" + s.replace("\"", "\"\"") + "\"";
-    }
-
-    public String export(List<ProductSummaryView> products) throws JsonProcessingException {
-        var stringBuilder = new StringBuilder();
-        stringBuilder.append("Product ID,Product Name,Quantity,Attributes\n");
-        for(ProductSummaryView product : products){
-            stringBuilder
-                    .append(product.productId()).append(",")
-                    .append(product.name()).append(",")
-                    .append(product.quantity()).append(",")
-                    .append(escape(objectMapper.writeValueAsString(product.properties())))
-                    .append("\n");
-        }
-        return stringBuilder.toString();
-    }
-}
-
-
 @Service
 public class ProjectQuery {
     private final ProjectQueryRepository projectQueryRepository;
-    private final ProjectSummaryCsvExporter projectSummaryCsvExporter;
+    private final AccumulatedProductExporter accumulatedProductExporter;
 
     @Autowired
-    ProjectQuery(ProjectQueryRepository projectQueryRepository, ProjectSummaryCsvExporter projectSummaryCsvExporter) {
+    ProjectQuery(ProjectQueryRepository projectQueryRepository, AccumulatedProductExporter accumulatedProductExporter) {
         this.projectQueryRepository = projectQueryRepository;
-        this.projectSummaryCsvExporter = projectSummaryCsvExporter;
+        this.accumulatedProductExporter = accumulatedProductExporter;
     }
 
     public ProjectView getFullProject(UUID projectId) {
@@ -125,25 +76,25 @@ public class ProjectQuery {
         return new ProjectView(sharedProjectRow.getProjectId(), sharedProjectRow.getProjectName(), stages);
     }
 
-    private List<ProductSummaryView> getProjectSummary(UUID projectId) {
-        List<FlatProjectSummary> projectFlatSummaries = projectQueryRepository.getFlatProjectSummaries(projectId);
+    private List<AccumulatedProductView> getProjectSummary(UUID projectId) {
+        List<FlatAccumulatedProductView> projectFlatSummaries = projectQueryRepository.getFlatProjectSummaries(projectId);
         if(projectFlatSummaries.isEmpty()) throw new ProjectNotFoundException();
 
         Map<Long, ProductSummaryBuilder> productMap = new HashMap<>();
 
-        for (FlatProjectSummary flatProjectSummary : projectFlatSummaries){
+        for (FlatAccumulatedProductView flatAccumulatedProductView : projectFlatSummaries){
             productMap.computeIfAbsent(
-                    flatProjectSummary.getProductId(),
+                    flatAccumulatedProductView.getProductId(),
                     productId -> new ProductSummaryBuilder(
                             productId,
-                            flatProjectSummary.getProductName(),
-                            flatProjectSummary.getQuantity()));
+                            flatAccumulatedProductView.getProductName(),
+                            flatAccumulatedProductView.getQuantity()));
 
-            if (flatProjectSummary.getPropertyName() != null){
-                productMap.get(flatProjectSummary.getProductId())
+            if (flatAccumulatedProductView.getPropertyName() != null){
+                productMap.get(flatAccumulatedProductView.getProductId())
                         .addProperty(
-                                flatProjectSummary.getPropertyName(),
-                                flatProjectSummary.getPropertyValue());
+                                flatAccumulatedProductView.getPropertyName(),
+                                flatAccumulatedProductView.getPropertyValue());
             }
         }
 
@@ -154,10 +105,6 @@ public class ProjectQuery {
     }
 
     public String exportProjectSummaryCSV(UUID projectId){
-        try{
-            return projectSummaryCsvExporter.export(getProjectSummary(projectId));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        return accumulatedProductExporter.export(getProjectSummary(projectId));
     }
 }
