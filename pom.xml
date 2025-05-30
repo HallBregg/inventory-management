@@ -19,6 +19,7 @@
         <java.version>24</java.version>
         <node.version>v23.9.0</node.version>
         <npm.version>11.2.0</npm.version>
+        <npm.build.mode>''</npm.build.mode>
     </properties>
 
     <dependencies>
@@ -30,7 +31,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
@@ -95,7 +95,7 @@
                         </goals>
                         <phase>generate-resources</phase>
                         <configuration>
-                            <arguments>run build</arguments>
+                            <arguments>run build -- --mode ${npm.build.mode}</arguments>
                         </configuration>
                     </execution>
                 </executions>

@@ -1,10 +1,17 @@
 FROM maven:3.9.9-eclipse-temurin-24 AS builder
 
+ARG BUILD_MODE
+
 WORKDIR /home/build
 COPY pom.xml .
 COPY src ./src
 
-RUN mvn clean package -DskipTests -Pnative-jlink
+RUN if [ -n "$BUILD_MODE" ]; then \
+      mvn clean package -DskipTests -Pnative-jlink -Dnpm.build.mode="$BUILD_MODE"; \
+    else \
+      mvn clean package -DskipTests -Pnative-jlink; \
+    fi
+
 RUN jar xvf target/*jar &&\
     jdeps \
     --ignore-missing-deps \

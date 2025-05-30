@@ -1,20 +1,27 @@
 package my.group.productscounter;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
-// DEV only for now!
 @Configuration
 class WebConfig implements WebMvcConfigurer {
+
+    @Autowired
+    private Environment env;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+        String[] origins = env.getProperty("app.cors.allowed-origins", String[].class, new String[0]);
+
         registry.addMapping("/api/**")
-                .allowedOrigins("http://localhost:5173") // Vite dev server
-                .allowedMethods("*");
+                .allowedOrigins(origins)
+                .allowedMethods("GET", "POST", "PUT", "DELETE");
     }
 }
 
