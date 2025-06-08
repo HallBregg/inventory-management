@@ -1,5 +1,35 @@
 <template>
   <div v-if="project" class="section">
+    <!--  Error message-->
+    <div
+      v-if="errorAlert"
+      role="alert"
+      class="relative border-s-4 border-red-700 bg-red-50 p-4 rounded"
+    >
+      <div class="flex items-start gap-2 text-red-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="size-5 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+          <path
+            fill-rule="evenodd"
+            d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+            clip-rule="evenodd"
+          />
+        </svg>
+
+        <div class="flex-1">
+          <strong class="font-medium">{{ $t('somethingWentWrong') }}</strong>
+          <div class="mt-1 text-sm text-red-700">
+            <pre>{{ error }}</pre>
+          </div>
+        </div>
+
+        <button
+          @click="errorAlertCloseHandler()"
+          class="absolute top-2 right-2 text-red-500 hover:text-red-700"
+        >
+          &times;
+        </button>
+      </div>
+    </div>
 
     <div class="flex justify-between">
       <nav class="text-caption text-gray-500 mb-2">
@@ -301,6 +331,19 @@ const products = ref([])
 const availableAttributes = ref([])
 const expandedSections = ref(new Set())
 const { t } = useI18n()
+const error = ref(null)
+const errorAlert = ref(false)
+
+const propagateError = (err) => {
+  error.value = err
+  errorAlert.value = true
+  console.log(err)
+}
+
+const errorAlertCloseHandler = () => {
+  errorAlert.value = false
+  error.value = null
+}
 
 const showDeleteProjectModal = ref(false)
 const showDeleteProjectModalHandler = async () => {
@@ -351,10 +394,13 @@ const isExpanded = (index) => {
 
 onMounted(async () => {
   const id = route.params.id
-  project.value = await getProjectDetails(id)
-
-  products.value = await getProducts();
-  availableAttributes.value = await getAllProperties();
+  try{
+    project.value = await getProjectDetails(id)
+    products.value = await getProducts();
+    availableAttributes.value = await getAllProperties();
+  }catch(err){
+    propagateError(err)
+  }
 })
 
 const sortedProducts = (stage) => {
@@ -386,7 +432,7 @@ const updateStageHandler = (stage) => {
     try {
       await updateStage(project.value.id, stage)
     } catch (err) {
-      console.error(`Failed to update stage ${stageId}:`, err.message)
+      propagateError(err)
     } finally {
       isDirty.value = false
       stageSaveTimers.delete(stageId)
@@ -408,7 +454,7 @@ const handleCreateStage = async (name) => {
     // project.value.stages.push(stage)
     showAddStageModal.value = false
   } catch (err) {
-    console.error('Failed to create stage:', err.message)
+    propagateError(err)
   }
 }
 
@@ -512,6 +558,7 @@ const exportButtonHandler = async (projectId) => {
     document.body.removeChild(link)
   } catch (error) {
     console.error('CSV download failed:', error)
+    propagateError(error)
   }
 }
 

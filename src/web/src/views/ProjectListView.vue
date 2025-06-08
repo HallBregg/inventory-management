@@ -1,5 +1,35 @@
 <template>
   <div class="section">
+  <!--  Error message-->
+  <div
+    v-if="errorAlert"
+    role="alert"
+    class="relative border-s-4 border-red-700 bg-red-50 p-4 rounded"
+  >
+    <div class="flex items-start gap-2 text-red-700">
+      <svg xmlns="http://www.w3.org/2000/svg" class="size-5 mt-0.5" viewBox="0 0 24 24" fill="currentColor">
+        <path
+          fill-rule="evenodd"
+          d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+          clip-rule="evenodd"
+        />
+      </svg>
+
+      <div class="flex-1">
+        <strong class="font-medium">{{ $t('somethingWentWrong') }}</strong>
+        <div class="mt-1 text-sm text-red-700">
+          <pre>{{ error }}</pre>
+        </div>
+      </div>
+
+      <button
+        @click="errorAlertCloseHandler()"
+        class="absolute top-2 right-2 text-red-500 hover:text-red-700"
+      >
+        &times;
+      </button>
+    </div>
+  </div>
   <div class="p-6 space-y-6">
     <!-- Header -->
     <div class="flex justify-between items-center">
@@ -82,6 +112,8 @@ const showAddModal = ref(false)
 const newProjectName = ref('')
 const showDeleteModal = ref(false)
 const projectIdToDelete = ref(null)
+const error = ref(null)
+const errorAlert = ref(false)
 
 const { t } = useI18n()
 
@@ -89,16 +121,29 @@ onMounted(async () => {
   await fetchAllProjects()
 })
 
+const propagateError = (err) => {
+  error.value = err
+  errorAlert.value = true
+  console.log(err)
+}
+
+const errorAlertCloseHandler = () => {
+  errorAlert.value = false
+  error.value = null
+}
+
 const fetchAllProjects = async () => {
   try{
     projects.value = await getProjects()
   } catch (err) {
-    console.error('Failed to load projects: ', err.message)
+    propagateError(err)
   }
 }
 
 const addProject = async () => {
-  await createProject(newProjectName.value)
+  try{
+    await createProject(newProjectName.value)
+  } catch(err){propagateError(err); return;}
   newProjectName.value = ''
   showAddModal.value = false
   await fetchAllProjects()
@@ -110,7 +155,12 @@ const deleteProjectHandler = async (id) => {
 }
 
 const confirmDelete = async () => {
-  await deleteProject(projectIdToDelete.value)
+  try{
+    await deleteProject(projectIdToDelete.value)
+  }catch(err){
+    propagateError(err)
+    return
+  }
   await fetchAllProjects()
   showDeleteModal.value = false;
 }
