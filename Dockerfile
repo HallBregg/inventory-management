@@ -34,6 +34,10 @@ RUN jar xvf target/*jar &&\
 FROM debian:bullseye-slim
 
 RUN useradd -m miras
+
+WORKDIR /home/miras/data
+RUN chown miras:miras /home/miras/data
+
 WORKDIR /home/miras
 
 COPY --from=builder /home/build/jre ./jre

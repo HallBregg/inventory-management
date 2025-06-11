@@ -3,4 +3,4 @@
 
 -Dnpm.build.mode=production
 
--Dspring-boot.run.profiles=prod
+docker build -t <> --platform linux/amd64,linux/arm64 --build-arg BUILD_MODE=production .
