@@ -1,6 +1,9 @@
 FROM maven:3.9.9-eclipse-temurin-24 AS builder
 
 ARG BUILD_MODE
+ARG API_URL
+
+ENV VITE_API_URL=$API_URL
 
 WORKDIR /home/build
 COPY pom.xml .
