@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: products-counter
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:h2:file:./demodb}
+    username: ${DATASOURCE_USERNAME:sa}
+    password: ${DATASOURCE_PASSWORD:password}
+    driver-class-name: org.h2.Driver
+
+
+product:
+  finder:
+    fake: false
+
+app:
+  cors:
+    allowed-origins: ${ORIGINS:http://localhost:5173,http://localhost:8080}
